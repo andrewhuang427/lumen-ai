@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+model BibleVersion {
+    id                 String      @id @default(uuid())
+    name               String
+    abbreviation       String      @unique
+    description        String?
+    language           String
+    books              BibleBook[]
+    preferred_by_users User[]      @relation("PreferredVersion")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model BibleBook {
+    id                 String              @id @default(uuid())
+    name               String
+    abbreviation       String
+    number             Int
+    version_id         String
+    version            BibleVersion        @relation(fields: [version_id], references: [id], onDelete: Cascade)
+    chapters           BibleChapter[]
+    sessions           BibleStudySession[]
+    last_visited_users User[]              @relation("LastVisitedBook")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([version_id, number])
+}
+
+model BibleChapter {
+    id                 String              @id @default(uuid())
+    number             Int
+    book_id            String
+    book               BibleBook           @relation(fields: [book_id], references: [id], onDelete: Cascade)
+    headings           BibleHeading[]
+    verses             BibleVerse[]
+    start_for_sessions BibleStudySession[] @relation("startChapter")
+    end_for_sessions   BibleStudySession[] @relation("endChapter")
+    last_visited_users User[]              @relation("LastVisitedChapter")
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([book_id, number])
+}
+
+model BibleHeading {
+    id                 String       @id @default(uuid())
+    text               String
+    start_verse_number Int
+    chapter_id         String
+    chapter            BibleChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([chapter_id, start_verse_number])
+}
+
+model BibleVerse {
+    id           String       @id @default(uuid())
+    text         String
+    verse_number Int
+    chapter_id   String
+    chapter      BibleChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([chapter_id, verse_number])
+    @@index([chapter_id])
+}
+
+model BibleStudySession {
+    id               String           @id @default(uuid())
+    title            String
+    description      String?
+    book_id          String
+    book             BibleBook        @relation(fields: [book_id], references: [id], onDelete: Cascade)
+    start_chapter_id String
+    start_chapter    BibleChapter     @relation(name: "startChapter", fields: [start_chapter_id], references: [id], onDelete: Cascade)
+    end_chapter_id   String?
+    end_chapter      BibleChapter?    @relation(name: "endChapter", fields: [end_chapter_id], references: [id], onDelete: SetNull)
+    notes            BibleStudyNote[]
+    posts            BibleStudyPost[]
+    user_id          String
+    user             User             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id])
+}
+
+enum BibleStudyNoteType {
+    QUOTE
+    UNDERSTANDING
+    FREE_FORM
+    QUESTIONS
+}
+
+model BibleStudyNote {
+    id         String             @id @default(uuid())
+    type       BibleStudyNoteType
+    data       Json
+    order      Int
+    session_id String
+    session    BibleStudySession  @relation(fields: [session_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([session_id])
+    @@index([session_id, order])
+}
+
+enum BibleStudyPostType {
+    TEXT
+    IMAGE
+}
+
+enum BibleStudyPostStatus {
+    DRAFT
+    PUBLISHED
+}
+
+model BibleStudyPost {
+    id           String               @id @default(uuid())
+    type         BibleStudyPostType
+    status       BibleStudyPostStatus
+    title        String
+    description  String?
+    content_json Json? // Tiptap editor state
+    content_text String? // Plain text or HTML representation
+    session_id   String
+    session      BibleStudySession    @relation(fields: [session_id], references: [id], onDelete: Cascade)
+    user_id      String
+    user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    likes        BibleStudyPostLike[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([session_id, user_id])
+    @@index([session_id])
+    @@index([status, created_at])
+    @@index([user_id, status, created_at])
+}
+
+model BibleStudyPostLike {
+    id      String         @id @default(uuid())
+    post_id String
+    post    BibleStudyPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
+    user_id String
+    user    User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([post_id, user_id])
+}
+
+model ChatThread {
+    id       String        @id @default(uuid())
+    title    String
+    user_id  String
+    user     User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    messages ChatMessage[]
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+}
+
+model ChatMessage {
+    id         String          @id @default(uuid())
+    role       ChatMessageRole
+    thread_id  String
+    thread     ChatThread      @relation(fields: [thread_id], references: [id], onDelete: Cascade)
+    content    String
+    created_at DateTime        @default(now())
+    updated_at DateTime        @updatedAt
+}
+
+enum ChatMessageRole {
+    USER
+    ASSISTANT
+}
+
+model User {
+    id           String               @id @default(uuid())
+    name         String
+    email        String               @unique
+    username     String               @unique
+    avatar_url   String?
+    tier         UserTier             @default(FREE)
+    sessions     BibleStudySession[]
+    posts        BibleStudyPost[]
+    liked_posts  BibleStudyPostLike[]
+    chat_threads ChatThread[]
+
+    // Bible preferences
+    preferred_bible_version_id String?
+    preferred_bible_version    BibleVersion? @relation(name: "PreferredVersion", fields: [preferred_bible_version_id], references: [id], onDelete: SetNull)
+    last_visited_book_id       String?
+    last_visited_book          BibleBook?    @relation(name: "LastVisitedBook", fields: [last_visited_book_id], references: [id], onDelete: SetNull)
+    last_visited_chapter_id    String?
+    last_visited_chapter       BibleChapter? @relation(name: "LastVisitedChapter", fields: [last_visited_chapter_id], references: [id], onDelete: SetNull)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    sentFollowRequests     UserFollowRequest[] @relation("FromUser")
+    receivedFollowRequests UserFollowRequest[] @relation("ToUser")
+}
+
+enum UserTier {
+    FREE
+    PREMIUM
+}
+
+enum FollowStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+}
+
+model UserFollowRequest {
+    id           String       @id @default(uuid())
+    status       FollowStatus @default(PENDING)
+    from_user_id String
+    from_user    User         @relation("FromUser", fields: [from_user_id], references: [id], onDelete: Cascade)
+    to_user_id   String
+    to_user      User         @relation("ToUser", fields: [to_user_id], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([from_user_id, status, createdAt])
+    @@index([to_user_id, status, createdAt])
+}
