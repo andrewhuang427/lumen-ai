@@ -1,16 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useIsMobile } from "../../hooks/use-mobile";
 import SelectBibleBook from "../bible/select-bible-book";
 import SelectBibleChapter from "../bible/select-bible-chapter";
+import SelectBibleVersion from "../bible/select-bible-version";
 import { useBibleReaderContext } from "./use-bible-reader-context";
-import { useIsMobile } from "../../hooks/use-mobile";
 
 export default function BibleReaderHeaderV2() {
   const {
     selectedVersion,
     selectedBook,
     selectedChapter,
+    selectVersion,
     selectBook,
     selectChapter,
   } = useBibleReaderContext();
@@ -22,6 +24,16 @@ export default function BibleReaderHeaderV2() {
     <div className="relative flex w-full shrink-0 justify-center p-4 md:p-6">
       <div className="relative flex items-center gap-4">
         <div className="flex items-center gap-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <SelectBibleVersion
+              selectedVersion={selectedVersion}
+              onVersionChange={selectVersion}
+            />
+          </motion.div>
           {selectedVersion != null && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}

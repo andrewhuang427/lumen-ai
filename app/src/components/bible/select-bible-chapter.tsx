@@ -49,7 +49,7 @@ export default function SelectBibleChapter({
     >
       <SelectTrigger
         aria-label="Select a chapter"
-        className={cn("w-36 shrink-0", className)}
+        className={cn("shrink-0", className)}
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         <SelectValue placeholder="Chapter" />
