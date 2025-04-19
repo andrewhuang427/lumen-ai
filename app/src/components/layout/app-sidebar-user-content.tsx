@@ -19,7 +19,6 @@ import {
 } from "../ui/collapsible";
 import { Separator } from "../ui/separator";
 import {
-  SidebarContent,
   SidebarGroup,
   SidebarGroupAction,
   SidebarGroupLabel,
@@ -32,11 +31,11 @@ import {
   SidebarMenuSubItem,
 } from "../ui/sidebar";
 
-export default function AppSidebarContent() {
+export default function AppSidebarUserContent() {
   const path = usePathname();
 
   return (
-    <SidebarContent>
+    <>
       <SidebarGroup>
         <SidebarGroupLabel>General</SidebarGroupLabel>
         <SidebarMenu>
@@ -86,7 +85,7 @@ export default function AppSidebarContent() {
           <SidebarBibleStudiesSection />
         </SidebarMenu>
       </SidebarGroup>
-    </SidebarContent>
+    </>
   );
 }
 
