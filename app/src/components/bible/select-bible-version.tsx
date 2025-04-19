@@ -46,7 +46,7 @@ export default function SelectBibleVersion({
             <Select
               value={selectedVersion?.id}
               onValueChange={handleVersionChange}
-              disabled={true}
+              disabled={versions.length <= 1}
             >
               <SelectTrigger
                 aria-label="Select a version"
