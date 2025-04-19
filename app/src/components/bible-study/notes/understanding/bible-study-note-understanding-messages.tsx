@@ -37,7 +37,7 @@ export default function BibleStudyNoteUnderstandingMessages({
             ) : (
               <>
                 <Church size={12} className="text-yellow-500" />
-                <span>Lumen AI</span>
+                <span>Lumen</span>
               </>
             )}
           </div>

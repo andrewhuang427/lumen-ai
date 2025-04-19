@@ -8,7 +8,7 @@ export function BibleReaderPageHeader() {
   return (
     <Header
       icon={<SquareLogo size={36} />}
-      title="Lumen AI"
+      title="Lumen"
       description="The Bible reading and study app for Christians."
       end={
         <div className="flex items-center gap-2">

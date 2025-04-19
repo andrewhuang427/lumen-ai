@@ -81,7 +81,7 @@ export default function AuthSignUpForm({ onSetForm }: Props) {
       <DialogHeader>
         <DialogTitle className="text-center">Create an account</DialogTitle>
         <DialogDescription className="max-w-xl text-center">
-          Create an account to receive personalized feedback on your essays.
+          Create a Lumen account to get started.
         </DialogDescription>
       </DialogHeader>
       {success ? (

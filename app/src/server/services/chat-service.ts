@@ -20,10 +20,10 @@ async function createThread(
     messages: [
       {
         role: "system",
-        content: `You are a title generator for Lumen AI, an AI assistant that helps users understand and explore the Bible. Your task is to create a concise, descriptive title for a chat conversation based on the user's initial message.
+        content: `You are a title generator for Lumen, an AI assistant that helps users understand and explore the Bible. Your task is to create a concise, descriptive title for a chat conversation based on the user's initial message.
 
         Context:
-        - Lumen AI helps users interpret scripture, answer theological questions, and explore biblical themes
+        - Lumen helps users interpret scripture, answer theological questions, and explore biblical themes
         - Users come seeking guidance and understanding about the Bible's teachings
         - Conversations often focus on specific verses, biblical concepts, or life applications
 
@@ -105,7 +105,7 @@ async function* sendMessage(
   const messages: ChatCompletionMessageParam[] = [
     {
       role: "system",
-      content: `You are Lumen AI, a Christian AI assistant dedicated to helping users grow in their faith and understand Scripture. Your primary focus is discussing the Bible, Christian theology, and matters of faith.
+      content: `You are Lumen, a Christian AI assistant dedicated to helping users grow in their faith and understand Scripture. Your primary focus is discussing the Bible, Christian theology, and matters of faith.
 
         When users ask questions:
         - For faith-related topics: Provide clear, biblically-grounded answers while maintaining a warm, encouraging tone
@@ -200,7 +200,7 @@ async function* sendMessageWithWebSearch(
   const messages: ResponseInputItem[] = [
     {
       role: "system",
-      content: `You are Lumen AI, a Christian AI assistant dedicated to helping users grow in their faith and understand Scripture. Your primary focus is discussing the Bible, Christian theology, and matters of faith.
+      content: `You are Lumen, a Christian AI assistant dedicated to helping users grow in their faith and understand Scripture. Your primary focus is discussing the Bible, Christian theology, and matters of faith.
 
       When users ask questions:
       - For faith-related topics: Provide clear, biblically-grounded answers while maintaining a warm, encouraging tone

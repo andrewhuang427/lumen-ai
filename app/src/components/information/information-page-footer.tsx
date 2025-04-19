@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { Separator } from "../ui/separator";
 
-export default function CompliancePageFooter() {
+export default function InformationPageFooter() {
   return (
     <div className="flex items-center gap-2">
       <Link
         href="/"
         className="text-sm text-muted-foreground hover:text-muted-foreground/80"
       >
-        Back to Home
+        Home
+      </Link>
+      <Separator orientation="vertical" className="h-3" />
+      <Link
+        href="/about"
+        className="text-sm text-muted-foreground hover:text-muted-foreground/80"
+      >
+        About
       </Link>
       <Separator orientation="vertical" className="h-3" />
       <Link

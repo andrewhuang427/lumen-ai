@@ -10,6 +10,12 @@ export default function AppSidebarFooterLinks() {
         </p>
       </Link>
       <Separator orientation="vertical" className="h-3" />
+      <Link href="/about">
+        <p className="text-xs text-muted-foreground hover:text-muted-foreground/80">
+          About
+        </p>
+      </Link>
+      <Separator orientation="vertical" className="h-3" />
       <Link href="/terms">
         <p className="text-xs text-muted-foreground hover:text-muted-foreground/80">
           Terms

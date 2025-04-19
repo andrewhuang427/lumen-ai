@@ -83,7 +83,7 @@ export function BibleStudyNoteQuestionGeneratedResponse({
             disabled={isGenerating || isGeneratingResponse}
           >
             <SquareLogo size={20} />
-            What does Lumen AI think?
+            What does Lumen think?
           </Button>
         </div>
       ) : (
@@ -91,7 +91,7 @@ export function BibleStudyNoteQuestionGeneratedResponse({
           <div className="flex items-center justify-between rounded-t-lg bg-primary/15 px-4 py-2">
             <div className="flex items-center gap-2 text-sm font-medium">
               <SquareLogo size={20} />
-              <span className="text-primary">Lumen AI&apos;s Response</span>
+              <span className="text-primary">Lumen&apos;s Response</span>
             </div>
             {!isGenerating && (
               <Button

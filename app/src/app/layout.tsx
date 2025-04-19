@@ -18,7 +18,7 @@ import { getServerUser } from "../server/utils/auth";
 import { api } from "../trpc/server";
 
 export const metadata: Metadata = {
-  title: "Lumen AI",
+  title: "Lumen",
   description: "The copilot that helps you learn the stories of the Bible",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
