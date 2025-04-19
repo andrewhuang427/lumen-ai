@@ -6,26 +6,23 @@ import { useEffect, useState } from "react";
  * @returns boolean indicating if the media query matches
  */
 const useMediaQuery = (query: string): boolean => {
-  // Initialize with the current match state
-  const [matches, setMatches] = useState(
-    () => window.matchMedia(query).matches,
-  );
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
     const mediaQuery = window.matchMedia(query);
-
-    // Update matches when the viewport changes
     const handleChange = (event: MediaQueryListEvent) => {
       setMatches(event.matches);
     };
-
-    // Add listener for viewport changes
     mediaQuery.addEventListener("change", handleChange);
-
-    // Initial check
     setMatches(mediaQuery.matches);
-
-    // Cleanup listener on unmount
     return () => {
       mediaQuery.removeEventListener("change", handleChange);
     };
