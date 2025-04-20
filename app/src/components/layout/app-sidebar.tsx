@@ -18,6 +18,7 @@ import {
 import AppSidebarFooterLinks from "./app-sidebar-footer-links";
 import AppSidebarUserContent from "./app-sidebar-user-content";
 import AppSidebarUserMenu from "./app-sidebar-user-menu";
+import { Separator } from "../ui/separator";
 
 export default function AppSidebar() {
   const { user } = useAuth();
@@ -41,7 +42,12 @@ export default function AppSidebar() {
         {user != null ? <AppSidebarUserContent /> : <SignInSidebarGroup />}
       </SidebarContent>
       <SidebarFooter>
-        {user != null && <AppSidebarUserMenu />}
+        {user != null && (
+          <>
+            <AppSidebarUserMenu />
+            <Separator />
+          </>
+        )}
         <AppSidebarFooterLinks />
       </SidebarFooter>
     </Sidebar>
@@ -51,6 +57,9 @@ export default function AppSidebar() {
 function SignInSidebarGroup() {
   return (
     <SidebarGroup>
+      <div className="mb-4 px-2 text-sm text-muted-foreground">
+        Sign in or create an account to start using Lumen.
+      </div>
       <SidebarMenu>
         <AuthDialog
           trigger={
