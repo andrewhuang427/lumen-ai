@@ -36,7 +36,7 @@ export default function AppSidebarUserContent() {
 
   return (
     <>
-      <SidebarGroup>
+      <SidebarGroup className="shrink-0 overflow-hidden">
         <SidebarGroupLabel>General</SidebarGroupLabel>
         <SidebarMenu>
           <Link href="/" prefetch={true}>
@@ -72,7 +72,7 @@ export default function AppSidebarUserContent() {
         </SidebarMenu>
       </SidebarGroup>
       <Separator />
-      <SidebarGroup>
+      <SidebarGroup className="overflow-hidden">
         <SidebarGroupLabel>Bible Study</SidebarGroupLabel>
         <BibleStudyCreateDialog
           trigger={
@@ -81,7 +81,7 @@ export default function AppSidebarUserContent() {
             </SidebarGroupAction>
           }
         />
-        <SidebarMenu>
+        <SidebarMenu className="overflow-auto">
           <SidebarBibleStudiesSection />
         </SidebarMenu>
       </SidebarGroup>

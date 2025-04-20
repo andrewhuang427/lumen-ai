@@ -1,13 +1,11 @@
 import Header from "../header/header";
 import UserFollowRequestsPopover from "../header/user-follow-requests-popover";
-import UserSearchInput from "../user-search/user-search-input";
-import SquareLogo from "../square-logo";
 import ThemeToggle from "../theme/theme-toggle";
+import UserSearchInput from "../user-search/user-search-input";
 
 export function BibleReaderPageHeader() {
   return (
     <Header
-      icon={<SquareLogo size={36} />}
       title="Lumen"
       description="The Bible reading and study app for Christians."
       end={

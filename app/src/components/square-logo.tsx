@@ -1,7 +1,5 @@
-import Image from "next/image";
-import { squareLogo } from "../assets";
-import { cn } from "../lib/utils";
 import Link from "next/link";
+import { cn } from "../lib/utils";
 
 type Props = {
   size: number;
@@ -10,16 +8,23 @@ type Props = {
 
 export default function SquareLogo({ size, className }: Props) {
   return (
-    <div
-      className={cn(
-        "cursor-pointer rounded-sm border bg-white hover:border-2 hover:border-blue-500",
-        className,
-      )}
-      style={{ height: size, width: size }}
+    <Link
+      href="/"
+      className={cn("text-muted-foreground hover:text-primary", className)}
     >
-      <Link href="/">
-        <Image src={squareLogo} height={size} alt="company logo" />
-      </Link>
-    </div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 488 661"
+        fill="none"
+      >
+        <path
+          d="M1 217.563C180.16 213.899 236.811 169.745 244.232 1C249.666 190.89 320.671 217.271 487 217.563C308.359 221.742 269.177 346.714 244.232 660C211.191 352.574 180.101 224.744 1 217.563Z"
+          fill="currentColor"
+          stroke="currentColor"
+        />
+      </svg>
+    </Link>
   );
 }

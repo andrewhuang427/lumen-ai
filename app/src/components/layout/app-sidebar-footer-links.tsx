@@ -31,7 +31,7 @@ export default function AppSidebarFooterLinks() {
       <Link
         target="_blank"
         href="https://github.com/andrewhuang427/lumen-ai"
-        className="text-muted-foreground hover:text-muted-foreground/80"
+        className="text-muted-foreground hover:text-primary"
       >
         <svg
           role="img"

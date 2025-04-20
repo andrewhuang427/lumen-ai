@@ -38,7 +38,7 @@ export default function AppSidebar() {
         <SquareLogo size={30} className="shrink-0" />
         <div className="grow" />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="overflow-hidden">
         {user != null ? <AppSidebarUserContent /> : <SignInSidebarGroup />}
       </SidebarContent>
       <SidebarFooter>
