@@ -4,13 +4,7 @@ import { type BibleVersion } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { api } from "../../trpc/react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 import {
   Tooltip,
   TooltipContent,
@@ -53,9 +47,7 @@ export default function SelectBibleVersion({
                 className={cn("shrink-0", className)}
               >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                <SelectValue placeholder="Version">
-                  {selectedVersion?.abbreviation}
-                </SelectValue>
+                {selectedVersion?.abbreviation ?? "Version"}
               </SelectTrigger>
               <SelectContent className="overflow-y-auto max-md:max-h-64">
                 {versions.map((version) => (
