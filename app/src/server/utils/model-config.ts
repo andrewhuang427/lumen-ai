@@ -22,7 +22,7 @@ export type Model = {
 };
 
 const LiteModel: Model = {
-  name: "Lumen AI Lite",
+  name: "Lumen Lite",
   description: "The basic model for free users",
   type: "lite",
   provider: ModelProviders.openai,
@@ -30,7 +30,7 @@ const LiteModel: Model = {
 };
 
 const ProModel: Model = {
-  name: "Lumen AI Pro",
+  name: "Lumen Pro",
   description: "The premium model for understanding the Bible",
   type: "pro",
   provider: ModelProviders.openai,

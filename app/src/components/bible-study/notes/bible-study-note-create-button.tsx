@@ -117,7 +117,7 @@ export default function BibleStudyNoteCreateButton() {
             <span>Understand</span>
           </div>
           <div className="text-xs text-muted-foreground">
-            Chat with Lumen AI to understand parts of the passage
+            Chat with Lumen to understand parts of the passage
           </div>
         </DropdownMenuItem>
         <DropdownMenuItem

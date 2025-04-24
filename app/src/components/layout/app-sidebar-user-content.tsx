@@ -19,7 +19,6 @@ import {
 } from "../ui/collapsible";
 import { Separator } from "../ui/separator";
 import {
-  SidebarContent,
   SidebarGroup,
   SidebarGroupAction,
   SidebarGroupLabel,
@@ -32,12 +31,12 @@ import {
   SidebarMenuSubItem,
 } from "../ui/sidebar";
 
-export default function AppSidebarContent() {
+export default function AppSidebarUserContent() {
   const path = usePathname();
 
   return (
-    <SidebarContent>
-      <SidebarGroup>
+    <>
+      <SidebarGroup className="shrink-0 overflow-hidden">
         <SidebarGroupLabel>General</SidebarGroupLabel>
         <SidebarMenu>
           <Link href="/" prefetch={true}>
@@ -73,7 +72,7 @@ export default function AppSidebarContent() {
         </SidebarMenu>
       </SidebarGroup>
       <Separator />
-      <SidebarGroup>
+      <SidebarGroup className="overflow-hidden">
         <SidebarGroupLabel>Bible Study</SidebarGroupLabel>
         <BibleStudyCreateDialog
           trigger={
@@ -82,11 +81,11 @@ export default function AppSidebarContent() {
             </SidebarGroupAction>
           }
         />
-        <SidebarMenu>
+        <SidebarMenu className="overflow-auto">
           <SidebarBibleStudiesSection />
         </SidebarMenu>
       </SidebarGroup>
-    </SidebarContent>
+    </>
   );
 }
 

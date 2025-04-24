@@ -40,7 +40,7 @@ function BibleBuddyThinkingMessage() {
       <ChatThreadMessage className="my-4 flex flex-row items-center gap-2 bg-transparent">
         <Loader2 className="size-4 animate-spin" />
         <span className="text-sm text-muted-foreground">
-          Lumen AI is thinking...
+          Lumen is thinking...
         </span>
       </ChatThreadMessage>
     </div>

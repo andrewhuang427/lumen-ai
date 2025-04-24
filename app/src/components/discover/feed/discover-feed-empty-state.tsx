@@ -7,7 +7,7 @@ export default function DiscoverEmptyFeed() {
     <div className="flex h-full w-full grow flex-col items-center justify-center">
       <EmptyState
         title="No posts found"
-        description="Follow others on Lumen AI to see their posts."
+        description="Follow others on Lumen to see their posts."
         icon={<UserPlus className="size-6" />}
         iconClassName="bg-muted text-primary"
         action={

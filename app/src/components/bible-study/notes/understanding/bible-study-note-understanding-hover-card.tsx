@@ -17,7 +17,7 @@ export default function BibleStudyNoteUnderstandingHoverCard() {
         <div className="flex flex-col gap-4 text-xs">
           <p className="text-sm font-medium">About the Understand Note</p>
           <p className="text-muted-foreground">
-            Lumen AI uses AI to help you understand the Bible.
+            Lumen uses AI to help you understand the Bible.
           </p>
           <Separator />
           <p className="text-muted-foreground">

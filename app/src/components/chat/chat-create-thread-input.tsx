@@ -44,11 +44,10 @@ export default function ChatCreateThreadInput() {
       <div className="flex w-full max-w-3xl flex-col gap-4 p-4">
         <div className="mb-4 flex flex-col items-center gap-2 text-center">
           <h2 className="text-2xl font-medium tracking-tight">
-            What can Lumen AI help you with?
+            What can Lumen help you with?
           </h2>
           <p className="text-center text-sm text-muted-foreground">
-            Lumen AI is your AI companion for studying and understanding
-            scripture.
+            Lumen is your AI companion for studying and understanding scripture.
           </p>
         </div>
         <div
@@ -68,7 +67,7 @@ export default function ChatCreateThreadInput() {
               }
             }}
             className="!max-h-48 w-full resize-none overflow-y-auto border-none bg-transparent outline-none focus:ring-0 focus-visible:ring-0"
-            placeholder="Ask Lumen AI anything about the Bible..."
+            placeholder="Ask Lumen anything about the Bible..."
           />
           <div className="flex w-full items-end gap-2">
             <ModelSelector />

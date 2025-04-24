@@ -37,7 +37,7 @@ export default function BibleReaderHeader() {
       {showTitle && (
         <div className="flex flex-col gap-2 text-center">
           <div className="flex items-center justify-center gap-2 text-2xl font-medium tracking-tight">
-            Welcome to Lumen AI
+            Welcome to Lumen
           </div>
           <p className="text-sm text-muted-foreground">
             Select a book and chapter to read.

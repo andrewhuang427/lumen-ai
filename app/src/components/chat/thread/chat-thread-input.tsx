@@ -25,7 +25,7 @@ export default function ChatThreadInput() {
             void handleSendMessage();
           }
         }}
-        placeholder="Ask Lumen AI anything about the Bible..."
+        placeholder="Ask Lumen anything about the Bible..."
         className="!max-h-48 w-full resize-none overflow-y-auto border-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <div className="flex items-end gap-2">

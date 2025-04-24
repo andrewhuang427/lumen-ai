@@ -1,6 +1,7 @@
 "use client";
 
 import { UserIcon } from "lucide-react";
+import { useIsMobile } from "../../hooks/use-mobile";
 import { cn } from "../../lib/utils";
 import AuthDialog from "../auth/auth-dialog";
 import useAuth from "../auth/use-auth";
@@ -8,14 +9,16 @@ import SquareLogo from "../square-logo";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
 } from "../ui/sidebar";
-import AppSidebarContent from "./app-sidebar-content";
-import AppSidebarFooter from "./app-sidebar-footer";
-import { useIsMobile } from "../../hooks/use-mobile";
+import AppSidebarFooterLinks from "./app-sidebar-footer-links";
+import AppSidebarUserContent from "./app-sidebar-user-content";
+import AppSidebarUserMenu from "./app-sidebar-user-menu";
+import { Separator } from "../ui/separator";
 
 export default function AppSidebar() {
   const { user } = useAuth();
@@ -35,27 +38,38 @@ export default function AppSidebar() {
         <SquareLogo size={30} className="shrink-0" />
         <div className="grow" />
       </SidebarHeader>
-      {user != null ? (
-        <>
-          <AppSidebarContent />
-          <AppSidebarFooter />
-        </>
-      ) : (
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarMenu>
-              <AuthDialog
-                trigger={
-                  <SidebarMenuButton variant="outline" tooltip="Sign in">
-                    <UserIcon className="size-4" />
-                    <span>Sign in</span>
-                  </SidebarMenuButton>
-                }
-              />
-            </SidebarMenu>
-          </SidebarGroup>
-        </SidebarContent>
-      )}
+      <SidebarContent className="overflow-hidden">
+        {user != null ? <AppSidebarUserContent /> : <SignInSidebarGroup />}
+      </SidebarContent>
+      <SidebarFooter>
+        {user != null && (
+          <>
+            <AppSidebarUserMenu />
+            <Separator />
+          </>
+        )}
+        <AppSidebarFooterLinks />
+      </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function SignInSidebarGroup() {
+  return (
+    <SidebarGroup>
+      <div className="mb-4 px-2 text-sm text-muted-foreground">
+        Sign in or create an account to start using Lumen.
+      </div>
+      <SidebarMenu>
+        <AuthDialog
+          trigger={
+            <SidebarMenuButton variant="outline" tooltip="Sign in">
+              <UserIcon className="size-4" />
+              <span>Sign in</span>
+            </SidebarMenuButton>
+          }
+        />
+      </SidebarMenu>
+    </SidebarGroup>
   );
 }

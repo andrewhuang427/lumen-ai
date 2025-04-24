@@ -1,6 +1,6 @@
-# Lumen AI
+# Lumen
 
-Lumen AI is an innovative web application that enhances the Bible study experience through artificial intelligence. Designed to deepen understanding of Scripture, Lumen AI offers:
+Lumen is an innovative web application that enhances the Bible study experience through artificial intelligence. Designed to deepen understanding of Scripture, Lumen offers:
 
 ## Core Features
 
@@ -13,4 +13,4 @@ Lumen AI is an innovative web application that enhances the Bible study experien
 - **Study Sharing**: Summarize and share study insights with the community
 - **Verse Selection**: Easily select and reference specific verses for deeper study
 
-Built with Next.js and the T3 stack, Lumen AI combines modern web technologies with advanced AI capabilities to make biblical wisdom more accessible and enriching. Whether for personal devotions, group study, or theological exploration, Lumen AI serves as a knowledgeable companion on your spiritual journey.
+Built with Next.js and the T3 stack, Lumen combines modern web technologies with advanced AI capabilities to make biblical wisdom more accessible and enriching. Whether for personal devotions, group study, or theological exploration, Lumen serves as a knowledgeable companion on your spiritual journey.

@@ -3,13 +3,7 @@ import { Loader2 } from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "../../lib/utils";
 import { api } from "../../trpc/react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "../ui/select";
 
 type Props = {
   book: BibleBook;
@@ -49,10 +43,10 @@ export default function SelectBibleChapter({
     >
       <SelectTrigger
         aria-label="Select a chapter"
-        className={cn("w-36 shrink-0", className)}
+        className={cn("shrink-0", className)}
       >
         {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        <SelectValue placeholder="Chapter" />
+        {selectedChapter?.number ?? "Chapter"}
       </SelectTrigger>
       <SelectContent className="overflow-y-auto max-md:max-h-64">
         {displayedChapters.map((chapter) => (

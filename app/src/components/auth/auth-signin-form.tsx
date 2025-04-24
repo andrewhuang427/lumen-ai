@@ -73,8 +73,7 @@ export default function AuthSignInForm({ onSetForm }: Props) {
       <DialogHeader>
         <DialogTitle className="text-center">Sign in</DialogTitle>
         <DialogDescription className="max-w-xl text-center">
-          Sign in to your account to receive personalized feedback on your
-          essays.
+          Welcome back! Sign in to Lumen to get started.
         </DialogDescription>
       </DialogHeader>
       <GoogleOAuthButton />
