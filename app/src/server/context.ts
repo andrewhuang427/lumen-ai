@@ -2,7 +2,7 @@ import { type User as DbUser } from "@prisma/client";
 import { type User } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import { db } from "~/server/db";
-import { getServerAuthenticatedUser } from "./supabase/supabase-server-client";
+import { serverSupabase } from "./supabase/supabase-server-client";
 
 export type Context = {
   db: typeof db;
@@ -19,8 +19,9 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   let user: User | null;
   try {
     if (authToken) {
-      const response = await getServerAuthenticatedUser(authToken);
-      user = response.user;
+      const serverClient = await serverSupabase();
+      const { data } = await serverClient.auth.getUser(authToken);
+      user = data.user;
     } else {
       user = null;
     }

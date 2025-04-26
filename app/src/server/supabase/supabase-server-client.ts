@@ -29,16 +29,3 @@ export const getServerSupabase = async () => {
 };
 
 export const serverSupabase = async () => await getServerSupabase();
-
-export const getServerAuthenticatedUser = async (token: string) => {
-  try {
-    const serverClient = await serverSupabase();
-    const { data, error } = await serverClient.auth.getUser(token);
-    if (error) {
-      throw error;
-    }
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
