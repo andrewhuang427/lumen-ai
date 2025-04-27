@@ -1,6 +1,6 @@
 "use client";
 
-import { UserIcon } from "lucide-react";
+import { Loader, UserIcon } from "lucide-react";
 import { useIsMobile } from "../../hooks/use-mobile";
 import { cn } from "../../lib/utils";
 import AuthDialog from "../auth/auth-dialog";
@@ -21,7 +21,7 @@ import AppSidebarUserContent from "./app-sidebar-user-content";
 import AppSidebarUserMenu from "./app-sidebar-user-menu";
 
 export default function AppSidebar() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const isMobile = useIsMobile();
 
   return (
@@ -39,7 +39,13 @@ export default function AppSidebar() {
         <div className="grow" />
       </SidebarHeader>
       <SidebarContent className="overflow-hidden">
-        {user != null ? <AppSidebarUserContent /> : <SignInSidebarGroup />}
+        {isLoading ? (
+          <LoadingSidebarGroup />
+        ) : user == null ? (
+          <SignInSidebarGroup />
+        ) : (
+          <AppSidebarUserContent />
+        )}
       </SidebarContent>
       <SidebarFooter>
         {user != null && (
@@ -51,6 +57,16 @@ export default function AppSidebar() {
         <AppSidebarFooterLinks />
       </SidebarFooter>
     </Sidebar>
+  );
+}
+
+function LoadingSidebarGroup() {
+  return (
+    <SidebarGroup className="grow">
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader className="size-4 animate-spin" />
+      </div>
+    </SidebarGroup>
   );
 }
 
