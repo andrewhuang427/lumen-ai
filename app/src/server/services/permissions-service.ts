@@ -8,7 +8,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { type Context } from "../context";
 
-async function validateSessionBelongsToUser(
+async function validateBibleStudySessionBelongsToUser(
   ctx: Context,
   sessionId: string,
 ): Promise<BibleStudySession> {
@@ -133,7 +133,7 @@ async function validateUserIsFollowing(
 }
 
 export const PermissionsService = {
-  validateSessionBelongsToUser,
+  validateBibleStudySessionBelongsToUser,
   validatePostBelongsToUser,
   validateNoteBelongsToUser,
   validateChatThreadBelongsToUser,

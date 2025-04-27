@@ -10,11 +10,9 @@ import AppProgressBar from "../components/layout/app-progress-bar";
 import AppSidebarLayout from "../components/layout/app-sidebar-layout";
 import ModelContextProvider from "../components/model/model-context-provider";
 import PostHogContextProvider from "../components/posthog/posthog-context-provider";
-import PosthogFeatureConfigProvider from "../components/posthog/posthog-feature-config-provider";
 import { ThemeProvider } from "../components/theme/theme-provider";
 import { Toaster } from "../components/ui/toaster";
-import { getFeatureConfig } from "../server/posthog/posthog-utils";
-import { getServerUser } from "../server/utils/auth";
+import { getAuthenticatedSession } from "../server/utils/auth";
 import { api } from "../trpc/server";
 
 export const metadata: Metadata = {
@@ -31,9 +29,9 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { user, session, dbUser } = await getServerUser();
-  const [featureConfig, readingLocation] = await Promise.all([
-    getFeatureConfig(user),
+  const [session, user, readingLocation] = await Promise.all([
+    getAuthenticatedSession(),
+    api.user.getAuthenticatedUser(),
     api.user.getReadingLocation(),
   ]);
 
@@ -45,35 +43,29 @@ export default async function RootLayout({
     >
       <body className="m-0 h-dvh w-full overflow-hidden p-0">
         <PostHogContextProvider>
-          <PosthogFeatureConfigProvider featureConfig={featureConfig}>
-            <TRPCReactProvider>
-              <AuthContextProvider
-                user={user}
-                session={session}
-                dbUser={dbUser}
+          <TRPCReactProvider>
+            <AuthContextProvider defaultSession={session} defaultUser={user}>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
               >
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                  disableTransitionOnChange
+                <BibleReaderContextProvider
+                  defaultReadingLocation={readingLocation}
                 >
-                  <BibleReaderContextProvider
-                    defaultReadingLocation={readingLocation}
-                  >
-                    <ModelContextProvider>
-                      <AppSidebarLayout>
-                        <AppProgressBar />
-                        <SpeedInsights />
-                        {children}
-                        <Toaster />
-                      </AppSidebarLayout>
-                    </ModelContextProvider>
-                  </BibleReaderContextProvider>
-                </ThemeProvider>
-              </AuthContextProvider>
-            </TRPCReactProvider>
-          </PosthogFeatureConfigProvider>
+                  <ModelContextProvider>
+                    <AppSidebarLayout>
+                      <AppProgressBar />
+                      <SpeedInsights />
+                      {children}
+                      <Toaster />
+                    </AppSidebarLayout>
+                  </ModelContextProvider>
+                </BibleReaderContextProvider>
+              </ThemeProvider>
+            </AuthContextProvider>
+          </TRPCReactProvider>
         </PostHogContextProvider>
       </body>
     </html>

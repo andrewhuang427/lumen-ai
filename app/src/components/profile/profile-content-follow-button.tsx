@@ -9,10 +9,10 @@ import useUnfollowUser from "./hooks/use-unfollow-user";
 import useProfileContext from "./use-profile-context";
 
 export default function ProfileContentFollowButton() {
-  const { user, followStatus } = useProfileContext();
-  const { dbUser } = useAuth();
+  const { userProfile, followStatus } = useProfileContext();
+  const { user } = useAuth();
 
-  if (dbUser?.id === user?.id) {
+  if (userProfile?.id === user?.id) {
     return null;
   }
 
@@ -24,14 +24,14 @@ export default function ProfileContentFollowButton() {
 }
 
 function FollowButton() {
-  const { user } = useProfileContext();
+  const { userProfile } = useProfileContext();
   const { follow, isPending } = useFollowUser();
 
   async function handleFollow() {
-    if (user == null) {
+    if (userProfile == null) {
       return;
     }
-    await follow(user.id);
+    await follow(userProfile.id);
   }
 
   return (
@@ -43,14 +43,14 @@ function FollowButton() {
 }
 
 function UnfollowButton() {
-  const { user, followStatus } = useProfileContext();
+  const { userProfile, followStatus } = useProfileContext();
   const { unfollow, isPending } = useUnfollowUser();
 
   async function handleUnfollow() {
-    if (user == null) {
+    if (userProfile == null) {
       return;
     }
-    await unfollow(user.id);
+    await unfollow(userProfile.id);
   }
 
   if (followStatus === FollowStatus.PENDING) {

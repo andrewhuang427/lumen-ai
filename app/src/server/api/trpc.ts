@@ -83,43 +83,19 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 const isAuthenticatedMiddleware = t.middleware(async ({ ctx, next }) => {
   // 1. Check if user is authenticated
-  if (ctx.user?.email == null) {
+  if (ctx.supabaseUser?.email == null) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
   // 2. Check if user exists in db; if not, create them
-  let dbUser = await ctx.db.user.findUnique({
-    where: { id: ctx.user.id },
+  const user = await ctx.db.user.findUnique({
+    where: { id: ctx.supabaseUser.id },
   });
-
-  if (dbUser == null) {
-    let username = ctx.user.email.split("@")[0] ?? "";
-    let counter = 0;
-
-    while (dbUser == null) {
-      try {
-        dbUser = await ctx.db.user.create({
-          data: {
-            id: ctx.user.id,
-            email: ctx.user.email,
-            username,
-            name: (ctx.user.user_metadata.name as string | undefined) ?? "",
-            avatar_url: ctx.user.user_metadata.avatar_url as string | undefined,
-          },
-        });
-        break;
-      } catch {
-        dbUser = await ctx.db.user.findUnique({
-          where: { id: ctx.user.id },
-        });
-
-        username = `${username}-${counter}`;
-        counter++;
-      }
-    }
+  if (user == null) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  return next({ ctx: { ...ctx, user: ctx.user, dbUser } });
+  return next({ ctx: { ...ctx, supabaseUser: ctx.supabaseUser, user } });
 });
 
 /**

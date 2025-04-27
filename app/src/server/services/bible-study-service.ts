@@ -97,7 +97,10 @@ async function updateSession(
   ctx: Context,
   input: UpdateSessionInput,
 ): Promise<BibleStudySession> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, input.sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    input.sessionId,
+  );
 
   return await ctx.db.bibleStudySession.update({
     where: { id: input.sessionId },
@@ -112,7 +115,10 @@ async function deleteSession(
   ctx: Context,
   sessionId: string,
 ): Promise<BibleStudySession> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    sessionId,
+  );
 
   return await ctx.db.bibleStudySession.delete({
     where: { id: sessionId },
@@ -123,7 +129,10 @@ async function getSession(
   ctx: Context,
   sessionId: string,
 ): Promise<EnrichedBibleStudySession> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    sessionId,
+  );
 
   return await getEnrichedSession(ctx, sessionId);
 }
@@ -155,7 +164,10 @@ async function getNotes(
   ctx: Context,
   sessionId: string,
 ): Promise<TypedBibleStudyNote[]> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    sessionId,
+  );
 
   const notes = await ctx.db.bibleStudyNote.findMany({
     where: { session_id: sessionId },
@@ -182,7 +194,10 @@ async function createNote(
   ctx: Context,
   input: CreateBibleStudyNoteType,
 ): Promise<TypedBibleStudyNote> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, input.sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    input.sessionId,
+  );
 
   const notes = await getNotes(ctx, input.sessionId);
   const order = notes.length + 1;
@@ -544,7 +559,10 @@ async function reorderNotes(
   ctx: Context,
   input: ReorderNotesInput,
 ): Promise<void> {
-  await PermissionsService.validateSessionBelongsToUser(ctx, input.sessionId);
+  await PermissionsService.validateBibleStudySessionBelongsToUser(
+    ctx,
+    input.sessionId,
+  );
 
   const noteIds = input.noteIds;
   for (let i = 0; i < noteIds.length; i++) {

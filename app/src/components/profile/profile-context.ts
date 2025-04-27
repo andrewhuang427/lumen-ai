@@ -4,7 +4,7 @@ import { type UserProfile } from "../../server/services/user-service";
 
 export type ProfileContextType = {
   username: string;
-  user: UserProfile | null;
+  userProfile: UserProfile | null;
   followStatus: FollowStatus | null;
   canSeeProfile: boolean;
   isFollowing: boolean;
@@ -13,7 +13,7 @@ export type ProfileContextType = {
 
 export const ProfileContext = createContext<ProfileContextType>({
   username: "",
-  user: null,
+  userProfile: null,
   followStatus: null,
   canSeeProfile: false,
   isFollowing: false,

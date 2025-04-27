@@ -13,17 +13,16 @@ type Props = PropsWithChildren<{
 }>;
 
 export default function ProfileContextProvider({ children, username }: Props) {
-  const { dbUser } = useAuth();
+  const { user } = useAuth();
+  const router = useRouter();
 
-  const { data: user = null, isLoading: isUserLoading } =
+  const { data: userProfile = null, isLoading: isUserLoading } =
     api.user.getUserByUsername.useQuery(username);
 
   const { data: followStatus = null, isLoading: isFollowStatusLoading } =
-    api.user.getFollowStatus.useQuery(user?.id ?? "", {
-      enabled: user != null,
+    api.user.getFollowStatus.useQuery(userProfile?.id ?? "", {
+      enabled: userProfile != null,
     });
-
-  const router = useRouter();
 
   useEffect(() => {
     if (user == null && !isUserLoading) {
@@ -32,11 +31,11 @@ export default function ProfileContextProvider({ children, username }: Props) {
   }, [user, router, isUserLoading]);
 
   const contextValue: ProfileContextType = useMemo(() => {
-    const isMe = dbUser?.id === user?.id;
+    const isMe = user?.id === userProfile?.id;
 
     return {
       username,
-      user,
+      userProfile,
       followStatus,
       canSeeProfile: isMe || followStatus === FollowStatus.ACCEPTED,
       isFollowing: followStatus === FollowStatus.ACCEPTED,
@@ -45,7 +44,7 @@ export default function ProfileContextProvider({ children, username }: Props) {
   }, [
     username,
     user,
-    dbUser,
+    userProfile,
     followStatus,
     isUserLoading,
     isFollowStatusLoading,
