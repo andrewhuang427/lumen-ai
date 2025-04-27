@@ -39,7 +39,7 @@ export default function AppSidebar() {
         <div className="grow" />
       </SidebarHeader>
       <SidebarContent className="overflow-hidden">
-        {isLoading ? (
+        {isLoading && user == null ? (
           <LoadingSidebarGroup />
         ) : user == null ? (
           <SignInSidebarGroup />
