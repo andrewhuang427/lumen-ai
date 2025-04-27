@@ -10,12 +10,74 @@ import { type Context } from "../context";
 import { type ModelType, TierConfig } from "../utils/model-config";
 import { PermissionsService } from "./permissions-service";
 
-async function getUser(context: Context, userId: string): Promise<User | null> {
+async function getAuthenticatedUser(context: Context): Promise<User | null> {
+  if (context.supabaseUser == null) {
+    return null;
+  }
   return await context.db.user.findUnique({
-    where: {
-      id: userId,
-    },
+    where: { id: context.supabaseUser.id },
   });
+}
+
+async function getOrCreateAuthenticatedUser(
+  context: Context,
+): Promise<User | null> {
+  if (context.supabaseUser == null) {
+    return null;
+  }
+  const user = await context.db.user.findUnique({
+    where: { id: context.supabaseUser.id },
+  });
+  return user ?? createAuthenticatedUser(context);
+}
+
+async function createAuthenticatedUser(
+  context: Context,
+  maxAttempts = 5,
+): Promise<User | null> {
+  const supabaseUser = context.supabaseUser;
+  const email = supabaseUser?.email;
+  if (supabaseUser == null || email == null) {
+    throw new Error("User not found");
+  }
+
+  let username = email.split("@")[0];
+  if (username == null || username == "") {
+    throw new Error("Username not found");
+  }
+
+  let newUser: User | null = null;
+  let counter = 0;
+  while (newUser == null && counter < maxAttempts) {
+    try {
+      // check if with the same ID already exists
+      const existingUser = await context.db.user.findUnique({
+        where: { id: supabaseUser.id },
+      });
+      if (existingUser != null) {
+        newUser = existingUser;
+        break;
+      }
+
+      // otherwise, try to create a new user
+      const userMetadata = supabaseUser.user_metadata;
+      newUser = await context.db.user.create({
+        data: {
+          id: supabaseUser.id,
+          email,
+          username,
+          name: (userMetadata.name as string | undefined) ?? "",
+          avatar_url: (userMetadata.avatar_url as string | undefined) ?? "",
+        },
+      });
+      break;
+    } catch {
+      username = `${username}-${counter}`;
+      counter++;
+    }
+  }
+
+  return newUser;
 }
 
 export type UserProfile = Pick<User, "id" | "name" | "username" | "avatar_url">;
@@ -194,7 +256,7 @@ export type AvailableModel = {
 async function getAvailableModels(
   context: Context,
 ): Promise<{ models: AvailableModel[]; defaultModel: AvailableModel }> {
-  const tier = context.dbUser?.tier;
+  const tier = context.user?.tier;
   if (!tier) {
     throw new Error("User not found");
   }
@@ -317,7 +379,8 @@ async function updateFollowRequestStatus(
 }
 
 export const UserService = {
-  getUser,
+  getAuthenticatedUser,
+  getOrCreateAuthenticatedUser,
   getUserByUsername,
   getFollowStatus,
   getUserFollowersCount,

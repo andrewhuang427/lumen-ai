@@ -2,18 +2,18 @@ import { api } from "../../../trpc/react";
 import useAuth from "../../auth/use-auth";
 
 export default function useUnfollowUser() {
-  const { dbUser } = useAuth();
+  const { user } = useAuth();
 
   const { mutateAsync: unfollowUserMutation, isPending } =
     api.user.unfollowUser.useMutation();
   const utils = api.useUtils();
 
-  async function unfollow(userId: string) {
-    if (dbUser?.id === userId) {
+  async function unfollow(userProfileId: string) {
+    if (user?.id === userProfileId) {
       return;
     }
-    await unfollowUserMutation(userId);
-    utils.user.getFollowStatus.setData(userId, null);
+    await unfollowUserMutation(userProfileId);
+    utils.user.getFollowStatus.setData(userProfileId, null);
   }
 
   return { unfollow, isPending };

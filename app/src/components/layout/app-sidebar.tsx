@@ -6,6 +6,7 @@ import { cn } from "../../lib/utils";
 import AuthDialog from "../auth/auth-dialog";
 import useAuth from "../auth/use-auth";
 import SquareLogo from "../square-logo";
+import { Separator } from "../ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +19,6 @@ import {
 import AppSidebarFooterLinks from "./app-sidebar-footer-links";
 import AppSidebarUserContent from "./app-sidebar-user-content";
 import AppSidebarUserMenu from "./app-sidebar-user-menu";
-import { Separator } from "../ui/separator";
 
 export default function AppSidebar() {
   const { user } = useAuth();

@@ -3,6 +3,8 @@
 import { ChevronsUpDown, Loader2, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { browserSupabase } from "../../server/supabase/supabase-client";
+import useAuth from "../auth/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -18,28 +20,24 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "../ui/sidebar";
-import { browserSupabase } from "../../server/supabase/supabase-client";
-import { api } from "../../trpc/react";
-import useAuth from "../auth/use-auth";
 
 export default function AppSidebarUserMenu() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const { dbUser } = useAuth();
+  const { user } = useAuth();
   const { isMobile } = useSidebar();
-  const utils = api.useUtils();
 
   async function handleLogout() {
     try {
       setIsLoggingOut(true);
       await browserSupabase().auth.signOut();
-      await utils.invalidate();
+      window.location.reload();
     } finally {
       setIsLoggingOut(false);
     }
   }
 
-  if (dbUser == null) {
+  if (user == null) {
     return null;
   }
 
@@ -54,16 +52,16 @@ export default function AppSidebarUserMenu() {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src={dbUser.avatar_url ?? undefined}
+                  src={user.avatar_url ?? undefined}
                   alt="User avatar"
                 />
                 <AvatarFallback className="rounded-lg">
-                  {dbUser.name.charAt(0)}
+                  {user.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{dbUser.name}</span>
-                <span className="truncate text-xs">@{dbUser.username}</span>
+                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate text-xs">@{user.username}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -78,21 +76,21 @@ export default function AppSidebarUserMenu() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={dbUser.avatar_url ?? undefined}
+                    src={user.avatar_url ?? undefined}
                     alt="User avatar"
                   />
                   <AvatarFallback className="rounded-lg">
-                    {dbUser.name.charAt(0)}
+                    {user.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{dbUser.name}</span>
-                  <span className="truncate text-xs">@{dbUser.username}</span>
+                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate text-xs">@{user.username}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link href={`/@${dbUser.username}`}>
+            <Link href={`/@${user.username}`}>
               <DropdownMenuItem>
                 <User className="mr-1 h-4 w-4" />
                 Profile

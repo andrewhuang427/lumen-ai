@@ -12,7 +12,7 @@ import ModelContextProvider from "../components/model/model-context-provider";
 import PostHogContextProvider from "../components/posthog/posthog-context-provider";
 import { ThemeProvider } from "../components/theme/theme-provider";
 import { Toaster } from "../components/ui/toaster";
-import { getServerUser } from "../server/utils/auth";
+import { getAuthenticatedSession } from "../server/utils/auth";
 import { api } from "../trpc/server";
 
 export const metadata: Metadata = {
@@ -29,8 +29,9 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ user, session, dbUser }, readingLocation] = await Promise.all([
-    getServerUser(),
+  const [session, user, readingLocation] = await Promise.all([
+    getAuthenticatedSession(),
+    api.user.getAuthenticatedUser(),
     api.user.getReadingLocation(),
   ]);
 
@@ -43,7 +44,7 @@ export default async function RootLayout({
       <body className="m-0 h-dvh w-full overflow-hidden p-0">
         <PostHogContextProvider>
           <TRPCReactProvider>
-            <AuthContextProvider user={user} session={session} dbUser={dbUser}>
+            <AuthContextProvider defaultSession={session} defaultUser={user}>
               <ThemeProvider
                 attribute="class"
                 defaultTheme="system"

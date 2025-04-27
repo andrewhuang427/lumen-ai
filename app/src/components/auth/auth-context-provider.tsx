@@ -1,83 +1,86 @@
 "use client";
 
-import { type User as DbUser } from "@prisma/client";
-import { type Session, type User as SupabaseUser } from "@supabase/supabase-js";
+import { type User } from "@prisma/client";
+import { type Session } from "@supabase/supabase-js";
 import posthog from "posthog-js";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { browserSupabase } from "../../server/supabase/supabase-client";
 import { api } from "../../trpc/react";
 import { AuthContext } from "./auth-context";
 import { setSessionCookies } from "./auth-utils";
 
 type Props = {
-  user: SupabaseUser | null;
-  session: Session | null;
-  dbUser: DbUser | null;
+  defaultSession: Session | null;
+  defaultUser: User | null;
   children: ReactNode;
 };
 
 export default function AuthContextProvider({
-  user: initialUser,
-  session: initialSession,
-  dbUser: initialDbUser,
+  defaultSession,
+  defaultUser,
   children,
 }: Props) {
-  const [session, setSession] = useState<Session | null>(initialSession);
-  const [user, setUser] = useState<SupabaseUser | null>(initialUser);
-  const [dbUser, setDbUser] = useState<DbUser | null>(initialDbUser);
-  const [isLoading, setIsLoading] = useState(!initialUser);
+  const [session, setSession] = useState<Session | null>(defaultSession);
+  const [user, setUser] = useState<User | null>(defaultUser);
 
-  const { refetch: fetchDbUser, isLoading: isFetchingDbUser } =
-    api.user.me.useQuery(undefined, {
-      enabled: initialDbUser != null,
-      initialData: initialDbUser,
-    });
+  const {
+    mutateAsync: getOrCreateAuthenticatedUser,
+    isPending: isFetchingAuthenticatedUser,
+  } = api.user.getOrCreateAuthenticatedUser.useMutation();
+
+  const fetchedAuthUserId = useRef<string | null>(null);
 
   useEffect(() => {
     async function handleAuthStateChange(session: Session | null) {
       setSession(session);
-      setUser(session?.user ?? null);
       setSessionCookies(session);
 
-      if (session?.user != null) {
-        // when a user is logged in, we need to fetch the db user
-        const response = await fetchDbUser();
-        setDbUser(response.data ?? null);
-        posthog.identify(session.user.id);
-      } else {
-        // when a user is logged out, we need to clear the db user
-        setDbUser(null);
+      if (session == null) {
+        setUser(null);
         posthog.reset();
+        return;
       }
 
-      setIsLoading(false);
+      if (fetchedAuthUserId.current !== session.user.id) {
+        fetchedAuthUserId.current = session.user.id;
+        const updatedUser = await getOrCreateAuthenticatedUser();
+        setUser(updatedUser);
+        if (updatedUser != null) {
+          posthog.identify(updatedUser.id);
+        }
+      }
     }
 
-    void browserSupabase()
-      .auth.getSession()
-      .then(({ data: { session } }) => {
-        void handleAuthStateChange(session);
-      });
+    function handleSignedOut() {
+      fetchedAuthUserId.current = null;
+      setUser(null);
+      setSession(null);
+      posthog.reset();
+    }
 
-    const { data: authListener } = browserSupabase().auth.onAuthStateChange(
-      (_event, session) => {
-        void handleAuthStateChange(session);
+    const listener = browserSupabase().auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN") {
+          void handleAuthStateChange(session);
+        }
+        if (event === "SIGNED_OUT") {
+          void handleSignedOut();
+        }
       },
     );
 
     return () => {
-      authListener.subscription.unsubscribe();
+      listener.data.subscription.unsubscribe();
     };
-  }, [fetchDbUser]);
+  }, [getOrCreateAuthenticatedUser]);
 
   const value = useMemo(
     () => ({
-      session,
       user,
-      dbUser,
-      isLoading: isLoading || isFetchingDbUser,
+      session,
+      isLoading: isFetchingAuthenticatedUser,
     }),
-    [session, user, dbUser, isLoading, isFetchingDbUser],
+    [session, user, isFetchingAuthenticatedUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -64,7 +64,7 @@ export function isModelAllowedForTier(
 }
 
 export function getModel(ctx: Context, modelType: ModelType = "lite"): Model {
-  const userTier = ctx.dbUser?.tier ?? UserTier.FREE;
+  const userTier = ctx.user?.tier ?? UserTier.FREE;
   const model = TierConfig[userTier].models.find((m) => m.type === modelType);
 
   if (!model) {

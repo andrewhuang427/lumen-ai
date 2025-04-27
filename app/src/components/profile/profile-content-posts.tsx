@@ -13,11 +13,11 @@ import {
 import useProfileContext from "./use-profile-context";
 
 export default function ProfileContentPosts() {
-  const { user, canSeeProfile } = useProfileContext();
+  const { userProfile, canSeeProfile } = useProfileContext();
 
   const { data: publishedPosts = [], isLoading } =
-    api.user.getUserPublishedPosts.useQuery(user?.id ?? "", {
-      enabled: canSeeProfile && user != null,
+    api.user.getUserPublishedPosts.useQuery(userProfile?.id ?? "", {
+      enabled: canSeeProfile && userProfile != null,
     });
 
   if (!canSeeProfile) {

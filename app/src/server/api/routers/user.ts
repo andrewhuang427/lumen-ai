@@ -12,8 +12,11 @@ import {
 } from "../trpc";
 
 export const userRouter = createTRPCRouter({
-  me: authenticatedProcedure.query(({ ctx }) => {
-    return UserService.getUser(ctx, ctx.user.id);
+  getAuthenticatedUser: publicProcedure.query(({ ctx }) => {
+    return UserService.getAuthenticatedUser(ctx);
+  }),
+  getOrCreateAuthenticatedUser: publicProcedure.mutation(({ ctx }) => {
+    return UserService.getOrCreateAuthenticatedUser(ctx);
   }),
   getUserByUsername: authenticatedProcedure
     .input(z.string())
