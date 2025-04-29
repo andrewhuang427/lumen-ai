@@ -7,6 +7,7 @@ import { bibleReferenceRegex } from "../../chat-utils";
 import { ChatThreadMessage } from "../chat-thread-components";
 import { ChatThreadAssistantMessageReferenceLink } from "./chat-thread-assistant-message-reference-link";
 import SquareLogo from "../../../square-logo";
+import { ExternalLink } from "lucide-react";
 
 type Props = {
   message: ChatMessage;
@@ -88,6 +89,17 @@ function ChatThreadAssistantMessageImpl({ message, isStreaming }: Props) {
                 <MarkdownText isStreaming={isStreaming}>{child}</MarkdownText>
               ))}
             </em>
+          ),
+          a: ({ children, href }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-400"
+            >
+              {children}
+              <ExternalLink className="size-4" />
+            </a>
           ),
         }}
       >

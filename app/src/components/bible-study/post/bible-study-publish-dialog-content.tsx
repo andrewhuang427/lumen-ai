@@ -20,7 +20,6 @@ import {
 import { Separator } from "../../ui/separator";
 import useBibleStudyContext from "../context/use-bible-study-context";
 import BibleStudyNotesPanelCard from "../notes/bible-study-notes-panel-card";
-import BibleStudyGenerateSummaryButton from "./bible-study-generate-summary-button";
 import BibleStudyPostContextProvider from "./bible-study-post-context.provider";
 import BibleStudyPublishButton from "./bible-study-publish-button";
 import useBibleStudyPostContext from "./hooks/use-bible-study-post-context";
@@ -86,7 +85,6 @@ function BibleStudyPublishDialogContent({ setIsOpen }: Props) {
               : "Write a post to share your Bible study with others."}
           </DialogDescription>
         </div>
-        <BibleStudyGenerateSummaryButton />
       </DialogHeader>
       <PostEditorToolbar />
       <Separator />

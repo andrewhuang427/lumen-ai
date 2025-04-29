@@ -19,6 +19,10 @@ export default function UserFollowRequestsPopover() {
   const hasPendingFollowRequests =
     pendingFollowRequests != null && pendingFollowRequests.length > 0;
 
+  if (user == null) {
+    return null;
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
