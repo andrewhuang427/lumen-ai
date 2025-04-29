@@ -36,7 +36,7 @@ export default function BibleChapter({
   return (
     <div className="flex flex-col gap-4 font-serif">
       <div className="flex items-center gap-2 border-b pb-4">
-        <h2 className="grow text-xl font-medium tracking-wide text-slate-800 dark:text-slate-200">
+        <h2 className="grow text-xl font-medium tracking-wide text-foreground">
           {book.name} {chapter.number}
         </h2>
       </div>
