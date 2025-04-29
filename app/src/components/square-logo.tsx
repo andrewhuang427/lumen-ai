@@ -7,7 +7,11 @@ type Props = {
   shouldLink?: boolean;
 };
 
-export default function SquareLogo({ size, className, shouldLink }: Props) {
+export default function SquareLogo({
+  size,
+  className,
+  shouldLink = true,
+}: Props) {
   if (shouldLink) {
     return (
       <Link

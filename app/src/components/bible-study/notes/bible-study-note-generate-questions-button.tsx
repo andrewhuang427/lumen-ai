@@ -25,7 +25,7 @@ export default function BibleStudyNoteGenerateQuestionsButton() {
       {isLoading ? (
         <Loader2 className="size-4 animate-spin" />
       ) : (
-        <HelpCircle size={16} className="text-purple-500" />
+        <HelpCircle size={16} />
       )}
       Generate questions
     </Button>

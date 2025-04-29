@@ -70,7 +70,7 @@ export function BibleStudyNoteQuestionItem({
           {item.verses.map((verse, i) => (
             <div
               key={i}
-              className="inline-flex items-center rounded bg-yellow-500/20 px-2 py-1 text-xs font-medium text-yellow-500"
+              className="inline-flex items-center rounded border bg-muted px-2 py-1 text-xs font-medium"
             >
               {verse}
             </div>

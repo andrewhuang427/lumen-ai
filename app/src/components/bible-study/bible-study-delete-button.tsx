@@ -49,7 +49,7 @@ export default function BibleStudyDeleteButton() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="secondary">
+        <Button variant="outline">
           <Trash2 />
           Delete
         </Button>

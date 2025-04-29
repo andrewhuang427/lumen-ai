@@ -44,7 +44,7 @@ export default function BibleStudyPublishDialog() {
     <Dialog open={isOpen} onOpenChange={post == null ? undefined : setIsOpen}>
       <DialogTrigger asChild onClick={handleOpen}>
         <Button
-          variant="secondary"
+          variant="outline"
           disabled={isLoadingPost || isCreatePostPending}
         >
           {isLoadingPost || isCreatePostPending ? (

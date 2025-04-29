@@ -20,7 +20,7 @@ function ChatThreadUserMessageImpl({ message }: Props) {
 
   return (
     <div className="flex justify-end">
-      <ChatThreadMessage className="rounded-lg bg-secondary/50 p-2.5 leading-6">
+      <ChatThreadMessage className="rounded-lg bg-muted p-2.5 leading-6">
         {message.content}
       </ChatThreadMessage>
     </div>

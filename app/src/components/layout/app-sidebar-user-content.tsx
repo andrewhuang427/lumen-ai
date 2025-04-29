@@ -2,6 +2,7 @@
 
 import {
   BookOpen,
+  Check,
   ChevronRight,
   Globe,
   MessageCircle,
@@ -41,32 +42,36 @@ export default function AppSidebarUserContent() {
         <SidebarMenu>
           <Link href="/" prefetch={true}>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Read">
-                <BookOpen
-                  className={`${path === "/" ? "text-blue-500" : ""}`}
-                />
+              <CustomSidebarMenuButton tooltip="Read" isActive={path === "/"}>
+                <BookOpen className={`${path === "/" ? "text-primary" : ""}`} />
                 <span className="truncate">Read</span>
-              </SidebarMenuButton>
+              </CustomSidebarMenuButton>
             </SidebarMenuItem>
           </Link>
           <Link href="/chat" prefetch={true}>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Chat">
+              <CustomSidebarMenuButton
+                tooltip="Chat"
+                isActive={path.includes("/chat")}
+              >
                 <MessageCircle
-                  className={`${path.includes("/chat") ? "text-blue-500" : ""}`}
+                  className={`${path.includes("/chat") ? "text-primary" : ""}`}
                 />
                 <span className="truncate">Chat</span>
-              </SidebarMenuButton>
+              </CustomSidebarMenuButton>
             </SidebarMenuItem>
           </Link>
           <Link href="/discover" prefetch={true}>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Discover">
+              <CustomSidebarMenuButton
+                tooltip="Discover"
+                isActive={path.includes("/discover")}
+              >
                 <Globe
-                  className={`${path.includes("/discover") ? "text-blue-500" : ""}`}
+                  className={`${path.includes("/discover") ? "text-primary" : ""}`}
                 />
                 <span className="truncate">Discover</span>
-              </SidebarMenuButton>
+              </CustomSidebarMenuButton>
             </SidebarMenuItem>
           </Link>
         </SidebarMenu>
@@ -99,7 +104,7 @@ function SidebarBibleStudiesSection() {
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip="Bible Studies">
             <Notebook
-              className={`${path.includes("/study") ? "text-blue-500" : ""}`}
+              className={`${path.includes("/study") ? "text-primary" : ""}`}
             />
             <span className="truncate">Your Bible Studies</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -119,12 +124,15 @@ function SidebarBibleStudiesSection() {
               {sessions?.map((session) => (
                 <SidebarMenuSubItem key={session.id}>
                   <SidebarMenuSubButton asChild>
-                    <Link href={`/study/${session.id}`} prefetch={true}>
-                      <span
-                        className={`truncate ${path.includes(`/study/${session.id}`) ? "text-blue-500" : ""}`}
-                      >
-                        {session.title}
-                      </span>
+                    <Link
+                      href={`/study/${session.id}`}
+                      prefetch={true}
+                      className={`flex items-center gap-2 ${path.includes(`/study/${session.id}`) ? "bg-sidebar-accent" : ""}`}
+                    >
+                      {path.includes(`/study/${session.id}`) && (
+                        <Check className="!text-primary" />
+                      )}
+                      {session.title}
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -134,5 +142,24 @@ function SidebarBibleStudiesSection() {
         </CollapsibleContent>
       </SidebarMenuItem>
     </Collapsible>
+  );
+}
+
+function CustomSidebarMenuButton({
+  children,
+  isActive,
+  tooltip,
+}: {
+  children: React.ReactNode;
+  isActive: boolean;
+  tooltip: string;
+}) {
+  return (
+    <SidebarMenuButton
+      tooltip={tooltip}
+      className={isActive ? "bg-sidebar-accent" : ""}
+    >
+      {children}
+    </SidebarMenuButton>
   );
 }

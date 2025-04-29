@@ -87,11 +87,11 @@ export function BibleStudyNoteQuestionGeneratedResponse({
           </Button>
         </div>
       ) : (
-        <div className="border-primary/20shadow-sm flex flex-col gap-2 rounded-lg border">
-          <div className="flex items-center justify-between rounded-t-lg bg-primary/15 px-4 py-2">
+        <div className="flex flex-col gap-2 rounded-lg border shadow-sm">
+          <div className="flex items-center justify-between rounded-t-lg bg-muted px-4 py-2">
             <div className="flex items-center gap-2 text-sm font-medium">
               <SquareLogo size={20} />
-              <span className="text-primary">Lumen&apos;s Response</span>
+              <span>Lumen&apos;s Response</span>
             </div>
             {!isGenerating && (
               <Button

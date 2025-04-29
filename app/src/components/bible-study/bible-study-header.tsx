@@ -36,7 +36,7 @@ export default function BibleStudyHeader() {
           <BibleStudyEditDialog
             session={session}
             trigger={
-              <Button variant="secondary">
+              <Button variant="outline">
                 <Pencil />
                 Edit
               </Button>

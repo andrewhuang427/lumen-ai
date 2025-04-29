@@ -21,8 +21,8 @@ export default function BibleStudyNoteUnderstandingSuggestedPrompts({
         {SUGGESTED_PROMPTS.map((prompt, index) => (
           <Badge
             key={index}
-            variant="secondary"
-            className="shrink-0 cursor-pointer hover:bg-sidebar"
+            variant="outline"
+            className="shrink-0 cursor-pointer hover:bg-muted"
             onClick={() => onSelectPrompt(prompt)}
           >
             {prompt}

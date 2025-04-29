@@ -77,14 +77,14 @@ function ChatThreadAssistantMessageImpl({ message, isStreaming }: Props) {
             </h3>
           ),
           strong: ({ children }) => (
-            <strong className="font-medium text-primary/80">
+            <strong className="font-medium text-black dark:text-secondary">
               {React.Children.map(children, (child) => (
                 <MarkdownText isStreaming={isStreaming}>{child}</MarkdownText>
               ))}
             </strong>
           ),
           em: ({ children }) => (
-            <em className="font-medium text-primary/80">
+            <em className="font-medium text-black dark:text-secondary">
               {React.Children.map(children, (child) => (
                 <MarkdownText isStreaming={isStreaming}>{child}</MarkdownText>
               ))}
@@ -100,6 +100,11 @@ function ChatThreadAssistantMessageImpl({ message, isStreaming }: Props) {
               {children}
               <ExternalLink className="size-4" />
             </a>
+          ),
+          code: ({ children }) => (
+            <div className="mt-2 overflow-x-auto rounded-md border bg-muted p-4 text-xs font-medium">
+              {children}
+            </div>
           ),
         }}
       >
