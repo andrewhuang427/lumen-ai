@@ -3,10 +3,12 @@ import { type User as SupabaseUser } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import { db } from "~/server/db";
 import { serverSupabase } from "./supabase/supabase-server-client";
+import Stripe from "stripe";
 
 export type Context = {
   db: typeof db;
   openai: OpenAI;
+  stripe: Stripe;
   headers: Headers;
   supabaseUser: SupabaseUser | null;
   user: User | null;
@@ -39,6 +41,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
     openai: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
+    stripe: new Stripe(process.env.STRIPE_SECRET_KEY as string),
     supabaseUser,
     user,
     ...opts,
