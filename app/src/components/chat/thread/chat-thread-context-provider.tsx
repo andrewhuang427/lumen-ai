@@ -37,6 +37,17 @@ export default function ChatThreadContextProvider({
   const { mutateAsync: sendMessageMutation } =
     api.chat.sendMessage.useMutation();
 
+  const utils = api.useUtils();
+
+  const refetchThreadAndUpdateCache = useCallback(async () => {
+    const { data: updatedThread } = await refetchThread();
+    if (updatedThread != null) {
+      utils.chat.getThreads.setData(undefined, (threads) => {
+        return threads?.map((t) => (t.id === threadId ? updatedThread : t));
+      });
+    }
+  }, [threadId, utils, refetchThread]);
+
   const sendMessage = useCallback(
     async (message?: string) => {
       if (message != null) {
@@ -71,12 +82,18 @@ export default function ChatThreadContextProvider({
             ];
           });
         }
-        await refetchThread();
+        void refetchThreadAndUpdateCache();
       } finally {
         setIsSendingMessage(false);
       }
     },
-    [threadId, model, isWebSearchEnabled, sendMessageMutation, refetchThread],
+    [
+      threadId,
+      model,
+      isWebSearchEnabled,
+      sendMessageMutation,
+      refetchThreadAndUpdateCache,
+    ],
   );
 
   // update messages state when thread changes

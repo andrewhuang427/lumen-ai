@@ -14,36 +14,10 @@ async function createThread(
   if (!ctx.user?.id) {
     throw new Error("User not found");
   }
-
-  const response = await ctx.openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content: `You are a title generator for Lumen, an AI assistant that helps users understand and explore the Bible. Your task is to create a concise, descriptive title for a chat conversation based on the user's initial message.
-
-        Context:
-        - Lumen helps users interpret scripture, answer theological questions, and explore biblical themes
-        - Users come seeking guidance and understanding about the Bible's teachings
-        - Conversations often focus on specific verses, biblical concepts, or life applications
-
-        Guidelines:
-        - Create a brief, clear title that captures the main topic or intent
-        - Keep it under 60 characters
-        - Use natural, readable language that reflects the biblical/spiritual nature of the conversation
-        - Format as plain text without quotes or special characters
-        - Respond with only the title, no other text
-        `,
-      },
-      { role: "user", content: initialMessage },
-    ],
-  });
-
-  const title = response.choices[0]?.message.content ?? "Untitled Chat";
   const thread = await ctx.db.chatThread.create({
     data: {
       user_id: ctx.user.id,
-      title,
+      title: "New Chat",
     },
   });
 
@@ -55,7 +29,45 @@ async function createThread(
     },
   });
 
+  void generateAndUpdateTitle(ctx, thread.id, initialMessage);
+
   return thread;
+}
+
+async function generateAndUpdateTitle(
+  ctx: Context,
+  threadId: string,
+  initialMessage: string,
+): Promise<ChatThread> {
+  const response = await ctx.openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [
+      {
+        role: "system",
+        content: `You are a title generator for Lumen, an AI assistant that helps users understand and explore the Bible. Your task is to create a concise, descriptive title for a chat conversation based on the user's initial message.
+
+          Context:
+          - Lumen helps users interpret scripture, answer theological questions, and explore biblical themes
+          - Users come seeking guidance and understanding about the Bible's teachings
+          - Conversations often focus on specific verses, biblical concepts, or life applications
+
+          Guidelines:
+          - Create a brief, clear title that captures the main topic or intent
+          - Keep it under 60 characters
+          - Use natural, readable language that reflects the biblical/spiritual nature of the conversation
+          - Format as plain text without quotes or special characters
+          - Respond with only the title, no other text
+          `,
+      },
+      { role: "user", content: initialMessage },
+    ],
+  });
+
+  const title = response.choices[0]?.message.content ?? "Untitled Chat";
+  return await ctx.db.chatThread.update({
+    where: { id: threadId },
+    data: { title },
+  });
 }
 
 type SendMessageOptions = {
