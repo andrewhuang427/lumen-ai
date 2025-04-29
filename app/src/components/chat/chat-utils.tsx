@@ -1,3 +1,4 @@
+import { type ChatThread } from "@prisma/client";
 import { BOOKS } from "../../server/utils/bible-utils";
 
 const bookNames = BOOKS.map((b) => b.name);
@@ -74,4 +75,52 @@ export function parseBibleReferenceDetails(reference: string): {
       startChapter: chapter,
     };
   }
+}
+
+export function isToday(date: Date): boolean {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+
+export function isYesterday(date: Date): boolean {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return (
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear()
+  );
+}
+
+export function groupThreadsByDate(threads: ChatThread[]): {
+  today: ChatThread[];
+  yesterday: ChatThread[];
+  older: ChatThread[];
+} {
+  if (!threads) return { today: [], yesterday: [], older: [] };
+
+  return threads.reduce(
+    (acc, thread) => {
+      const threadDate = new Date(thread.created_at);
+
+      if (isToday(threadDate)) {
+        acc.today.push(thread);
+      } else if (isYesterday(threadDate)) {
+        acc.yesterday.push(thread);
+      } else {
+        acc.older.push(thread);
+      }
+
+      return acc;
+    },
+    {
+      today: [] as ChatThread[],
+      yesterday: [] as ChatThread[],
+      older: [] as ChatThread[],
+    },
+  );
 }

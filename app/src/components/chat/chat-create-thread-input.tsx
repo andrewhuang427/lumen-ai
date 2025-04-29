@@ -24,18 +24,39 @@ export default function ChatCreateThreadInput() {
   const utils = api.useUtils();
 
   async function handleCreateThread() {
+    if (initialMessage.trim().length === 0) {
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const thread = await createThread({ initialMessage });
-      utils.chat.getThreads.setData(undefined, (previousThreads) => [
-        thread,
-        ...(previousThreads ?? []),
+      // 1. optimistically create a new thread
+      const dummyThread = {
+        id: `optimistic-${Date.now()}`,
+        title: "New Chat",
+        user_id: "optimistic-user",
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      utils.chat.getThreads.setData(undefined, (threads) => [
+        dummyThread,
+        ...(threads ?? []),
       ]);
+
+      // 2. create the actual thread
+      const thread = await createThread({ initialMessage });
+
+      // 3. update the threads list and navigate to the new thread
+      utils.chat.getThreads.setData(undefined, (threads) => {
+        const filtered = threads?.filter((t) => t.id !== dummyThread.id) ?? [];
+        return [thread, ...filtered];
+      });
       router.push(`/chat/${thread.id}`);
     } catch {
-      // reset the loading state only when there is an error as the
-      // redirection
       setIsLoading(false);
+      utils.chat.getThreads.setData(undefined, (threads) => {
+        return threads?.filter((t) => !t.id.startsWith("optimistic-")) ?? [];
+      });
     }
   }
 
