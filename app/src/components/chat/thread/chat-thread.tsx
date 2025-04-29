@@ -1,29 +1,27 @@
 "use client";
 
-import { MessagesSquare } from "lucide-react";
 import {
   ChatThreadCenterContainer,
   ChatThreadContainer,
   ChatThreadContent,
-  ChatThreadHeader,
   ChatThreadInputContainer,
 } from "./chat-thread-components";
 import ChatThreadInput from "./chat-thread-input";
-import ChatThreadMessages from "./chat-thread-messages";
+import { ChatThreadMessages } from "./chat-thread-messages";
 import { useChatThreadContext } from "./use-chat-thread-context";
 
 export default function ChatThread() {
-  const { thread, isSendingMessage } = useChatThreadContext();
+  const { bottomRef, messages, isSendingMessage } = useChatThreadContext();
 
   return (
     <ChatThreadContainer>
-      <ChatThreadHeader>
-        <MessagesSquare className="mr-2 size-4" />
-        {thread?.title}
-      </ChatThreadHeader>
       <ChatThreadContent>
         <ChatThreadCenterContainer>
-          <ChatThreadMessages />
+          <ChatThreadMessages
+            messages={messages}
+            isSendingMessage={isSendingMessage}
+          />
+          <div ref={bottomRef} />
           <ChatThreadInputContainer isSendingMessage={isSendingMessage}>
             <ChatThreadInput />
           </ChatThreadInputContainer>
