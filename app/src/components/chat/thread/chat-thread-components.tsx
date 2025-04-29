@@ -1,6 +1,5 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import ThemeToggle from "../../theme/theme-toggle";
 
 const ChatThreadContainer = React.forwardRef<
   HTMLDivElement,
@@ -30,7 +29,6 @@ const ChatThreadHeader = React.forwardRef<
     {...props}
   >
     <div className="flex grow items-center gap-2">{children}</div>
-    <ThemeToggle />
   </div>
 ));
 

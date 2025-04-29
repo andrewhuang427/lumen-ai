@@ -20,6 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "../ui/sidebar";
+import ThemeTabs from "../theme/theme-tabs";
 
 export default function AppSidebarUserMenu() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -89,6 +90,8 @@ export default function AppSidebarUserMenu() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <ThemeTabs />
             <DropdownMenuSeparator />
             <Link href={`/@${user.username}`}>
               <DropdownMenuItem>

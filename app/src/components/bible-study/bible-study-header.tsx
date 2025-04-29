@@ -7,7 +7,6 @@ import BibleStudyDeleteButton from "./bible-study-delete-button";
 import BibleStudyEditDialog from "./bible-study-edit-dialog";
 import useBibleStudyContext from "./context/use-bible-study-context";
 import BibleStudyPublishDialog from "./post/bible-study-publish-dialog";
-import ThemeToggle from "../theme/theme-toggle";
 
 export default function BibleStudyHeader() {
   const { session } = useBibleStudyContext();
@@ -45,7 +44,6 @@ export default function BibleStudyHeader() {
           />
           <BibleStudyDeleteButton />
           <BibleStudyPublishDialog />
-          <ThemeToggle />
         </div>
       }
     />
