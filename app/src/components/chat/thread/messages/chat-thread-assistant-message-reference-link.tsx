@@ -9,7 +9,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
-import { Fragment, useMemo, useState, useEffect } from "react";
+import { Fragment, memo, useEffect, useMemo, useState } from "react";
 import { api } from "../../../../trpc/react";
 import { useBibleReaderContext } from "../../../bible-reader/use-bible-reader-context";
 import {
@@ -24,9 +24,34 @@ import { parseBibleReferenceDetails } from "../../chat-utils";
 
 type Props = {
   reference: string;
+  isStreaming: boolean;
 };
 
-export function ChatThreadAssistantMessageReferenceLink({ reference }: Props) {
+export const ChatThreadAssistantMessageReferenceLink = memo(
+  ChatThreadAssistantMessageReferenceLinkImpl,
+  (prev, next) => {
+    return prev.reference === next.reference;
+  },
+);
+
+function ChatThreadAssistantMessageReferenceLinkImpl({
+  reference,
+  isStreaming,
+}: Props) {
+  // If the message is still streaming, don't show the popover
+  if (isStreaming) {
+    return <span className="text-blue-500">{reference}</span>;
+  }
+  return (
+    <ChatThreadAssistantMessageReferenceLinkPopoverImpl reference={reference} />
+  );
+}
+
+function ChatThreadAssistantMessageReferenceLinkPopoverImpl({
+  reference,
+}: {
+  reference: string;
+}) {
   const [open, setOpen] = useState(false);
   const [shouldFetchVerses, setShouldFetchVerses] = useState(false);
   const { selectedVersion } = useBibleReaderContext();

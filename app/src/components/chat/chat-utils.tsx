@@ -1,38 +1,16 @@
-import * as React from "react";
-import { ChatThreadAssistantMessageReferenceLink } from "./thread/messages/chat-thread-assistant-message-reference-link";
 import { BOOKS } from "../../server/utils/bible-utils";
 
-export function parseBibleReferences(text: string) {
-  const bookNames = BOOKS.map((b) => b.name);
+const bookNames = BOOKS.map((b) => b.name);
 
-  // Create a regex pattern from the book names, escaping special characters
-  const booksPattern = bookNames
-    .map((book) => book.replace(/([.*+?^${}()|[\]\\])/g, "\\$1"))
-    .join("|");
+// Create a regex pattern from the book names, escaping special characters
+const booksPattern = bookNames
+  .map((book) => book.replace(/([.*+?^${}()|[\]\\])/g, "\\$1"))
+  .join("|");
 
-  const bibleRefPattern = new RegExp(
-    `((?:${booksPattern})\\s+\\d+(?:(?::\\d+)?(?:-\\d+(?::\\d+)?)?)?)`,
-    "g",
-  );
-  const parts = text.split(bibleRefPattern);
-
-  return parts.map((part, i) => {
-    // Skip processing if part is not a string
-    if (typeof part !== "string") return part;
-
-    const needsLeadingSpace = i > 0 && !parts[i - 1]?.match(/\s$/);
-
-    if (part.match(bibleRefPattern)) {
-      return (
-        <React.Fragment key={i}>
-          {needsLeadingSpace && " "}
-          <ChatThreadAssistantMessageReferenceLink reference={part.trim()} />
-        </React.Fragment>
-      );
-    }
-    return part;
-  });
-}
+export const bibleReferenceRegex = new RegExp(
+  `((?:${booksPattern})\\s+\\d+(?:(?::\\d+)?(?:-\\d+(?::\\d+)?)?)?)`,
+  "g",
+);
 
 export function parseBibleReferenceDetails(reference: string): {
   bookName: string;

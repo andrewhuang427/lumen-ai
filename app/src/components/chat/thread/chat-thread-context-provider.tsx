@@ -25,6 +25,7 @@ export default function ChatThreadContextProvider({
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const { model, isWebSearchEnabled } = useModelContext();
 
+  const bottomRef = useRef<HTMLDivElement>(null);
   const didSendInitialMessage = useRef(false);
 
   const {
@@ -52,6 +53,9 @@ export default function ChatThreadContextProvider({
           ...prev,
           getDummyMessage(ChatMessageRole.ASSISTANT, response, threadId),
         ]);
+        requestAnimationFrame(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        });
         const generator = await sendMessageMutation({
           threadId,
           message,
@@ -105,6 +109,7 @@ export default function ChatThreadContextProvider({
 
   const contextValue: ChatThreadContextType = useMemo(
     () => ({
+      bottomRef,
       threadId,
       thread,
       messages,
