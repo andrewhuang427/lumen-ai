@@ -3,7 +3,7 @@
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useTheme } from "next-themes";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PK!;
 const stripePromise = loadStripe(stripePublishableKey);

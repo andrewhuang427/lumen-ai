@@ -8,19 +8,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   const body = await req.text();
-  const signature = req.headers.get("stripe-signature") as string;
+  const signature = req.headers.get("stripe-signature")!;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-  let event: Stripe.Event;
 
+  let event: Stripe.Event;
   try {
     if (!signature || !webhookSecret) {
       return new Response("Webhook secret not found.", { status: 400 });
     }
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     console.log(`🔔  Webhook received: ${event.type}`);
-  } catch (err: any) {
-    console.log(`❌ Error message: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (error) {
+    let errorMessage = "Unknown error while constructing stripe event";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    console.log(`❌ Error message: ${errorMessage}`);
+    return new Response(`Webhook Error: ${errorMessage}`, { status: 400 });
   }
 
   try {
@@ -28,7 +32,7 @@ export async function POST(req: Request) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription = event.data.object;
         await PaymentsService.updateSubscription(subscription);
         break;
       default:
@@ -36,11 +40,12 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
-  } catch (err: any) {
-    console.error(`Error processing webhook: ${err.message}`);
-    return NextResponse.json(
-      { error: "Error processing webhook" },
-      { status: 500 },
-    );
+  } catch (error) {
+    let errorMessage = "Unknown error while processing webhook";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    console.error(`Error processing webhook: ${errorMessage}`);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

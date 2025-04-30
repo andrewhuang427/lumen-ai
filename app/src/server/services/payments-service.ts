@@ -1,5 +1,5 @@
 import { UserTier, type User, type UserStripeCustomer } from "@prisma/client";
-import Stripe from "stripe";
+import { type Stripe } from "stripe";
 import { type Context } from "../context";
 import { db } from "../db";
 
@@ -43,7 +43,7 @@ async function getProducts(context: Context): Promise<
   });
 
   const enrichedProducts = await Promise.all(
-    await stripeProducts.data.map(async (product) => {
+    stripeProducts.data.map(async (product) => {
       const pricesList = await stripe.prices.list({ product: product.id });
       const firstPrice = pricesList.data.find(
         (price) => price.recurring?.interval === "month",
