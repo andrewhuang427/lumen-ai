@@ -1,64 +1,72 @@
-import { CheckoutProvider, PaymentElement } from "@stripe/react-stripe-js";
+"use client";
+
 import { Button } from "../ui/button";
 import {
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 
-import { loadStripe } from "@stripe/stripe-js";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { api } from "../../trpc/react";
 import { Dialog } from "../ui/dialog";
-
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PK!;
-const stripePromise = loadStripe(stripePublishableKey);
+import PaymentForm from "./payments/payment-form";
+import SubscriptionProductCard from "./subscription-product-card";
 
 export default function SubscriptionDialog() {
-  async function fetchClientSecret() {
-    return "replace_this_with_client_secret";
+  const [isOpen, setIsOpen] = useState(false);
+  const [clientSecret, setClientSecret] = useState("");
+
+  const { data: products, isLoading: isLoadingProducts } =
+    api.payments.getProducts.useQuery();
+
+  const {
+    mutateAsync: createPaymentIntent,
+    isPending: isCreatingPaymentIntent,
+  } = api.payments.createPaymentIntent.useMutation();
+
+  async function fetchClientSecret(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    const subscriptionProduct = products?.[0];
+    if (subscriptionProduct == null) {
+      return;
+    }
+    const { clientSecret } = await createPaymentIntent({
+      priceId: subscriptionProduct.price.id,
+    });
+    setClientSecret(clientSecret);
+    setIsOpen(true);
   }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="sm" className="w-full">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="w-full"
+          disabled={isLoadingProducts || isCreatingPaymentIntent}
+          onClick={fetchClientSecret}
+        >
+          {isCreatingPaymentIntent && (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          )}
           Upgrade to Premium
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Upgrade to Premium</DialogTitle>
-          <DialogDescription>
-            Upgrade to Premium to unlock all features
-          </DialogDescription>
+          <DialogTitle>Subscribe to Lumen Pro</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <CheckoutProvider
-            stripe={stripePromise}
-            options={{ fetchClientSecret }}
-          >
-            <PaymentForm />
-          </CheckoutProvider>
+          {products?.map((p) => {
+            return <SubscriptionProductCard key={p.product.id} {...p} />;
+          })}
+          {clientSecret !== "" && <PaymentForm clientSecret={clientSecret} />}
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary" className="w-full">
-              Cancel
-            </Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function PaymentForm() {
-  return (
-    <form>
-      <PaymentElement />
-    </form>
   );
 }
