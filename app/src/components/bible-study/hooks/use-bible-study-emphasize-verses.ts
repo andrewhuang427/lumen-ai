@@ -1,11 +1,17 @@
 import { type BibleStudyNoteVerseGroupType } from "../../../server/utils/bible-note-utils";
 import { getVerseId } from "../../utils/bible-utils";
 import { useBibleStudyContentScrollableContext } from "../context/use-bible-study-content-scrollable-context";
+import useBibleStudyContext from "../context/use-bible-study-context";
 
 export default function useBibleStudyEmphasizeVerses() {
   const scrollableRef = useBibleStudyContentScrollableContext();
+  const { setSelectedVerses } = useBibleStudyContext();
 
-  function emphasizeVerses(verseGroups: BibleStudyNoteVerseGroupType[]) {
+  function emphasizeVerses(
+    verseGroups: BibleStudyNoteVerseGroupType[],
+    shouldFadeOut = true,
+  ) {
+    setSelectedVerses([]);
     const scrollableElement = scrollableRef?.current;
     if (scrollableElement == null) {
       return;
@@ -44,11 +50,26 @@ export default function useBibleStudyEmphasizeVerses() {
         return;
       }
       element.style.color = "rgba(234, 179, 8)";
-      setTimeout(() => {
-        element.style.color = "";
-      }, 1000);
+      if (shouldFadeOut) {
+        setTimeout(() => {
+          element.style.color = "";
+        }, 1000);
+      }
     });
   }
 
-  return emphasizeVerses;
+  function deemphasizeVerses(verseGroups: BibleStudyNoteVerseGroupType[]) {
+    const elements = verseGroups
+      .map((g) => g.map((v) => document.getElementById(getVerseId(v.id))))
+      .flatMap((verse) => verse);
+
+    elements.forEach((element) => {
+      if (element == null) {
+        return;
+      }
+      element.style.color = "";
+    });
+  }
+
+  return { emphasizeVerses, deemphasizeVerses };
 }

@@ -3,12 +3,13 @@ import { Loader2 } from "lucide-react";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import { type TypedBibleStudyNoteUnderstand } from "../../../../server/utils/bible-note-utils";
+import { ModelSelector } from "../../../model/model-selector";
 import { AutosizeTextarea } from "../../../ui/autosize-textarea";
 import { Button } from "../../../ui/button";
 import { Separator } from "../../../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../../ui/tooltip";
+import useBibleStudyEmphasizeVerses from "../../hooks/use-bible-study-emphasize-verses";
 import BibleStudyNoteUnderstandingSuggestedPrompts from "./bible-study-note-understanding-suggested-prompts";
-import { ModelSelector } from "../../../model/model-selector";
 
 type Props = {
   note: TypedBibleStudyNoteUnderstand;
@@ -23,6 +24,8 @@ export default function BibleStudyNoteUnderstandingTextarea({
 }: Props) {
   const [message, setMessage] = useState("");
   const isVersesEmpty = note.data.verses.length === 0;
+
+  const { emphasizeVerses, deemphasizeVerses } = useBibleStudyEmphasizeVerses();
 
   async function handleSendMessage() {
     if (isVersesEmpty) {
@@ -44,6 +47,8 @@ export default function BibleStudyNoteUnderstandingTextarea({
               void handleSendMessage();
             }
           }}
+          onFocus={() => emphasizeVerses(note.data.verses, false)}
+          onBlur={() => deemphasizeVerses(note.data.verses)}
           placeholder="Ask a question..."
           className="min-h-24 resize-none border-none p-1 focus-visible:ring-0"
         />

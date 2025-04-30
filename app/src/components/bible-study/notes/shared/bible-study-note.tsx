@@ -55,7 +55,7 @@ const NoteVerse = React.forwardRef<
   HTMLDivElement,
   Omit<React.HTMLAttributes<HTMLDivElement>, "children"> & NoteVerseProps
 >(({ className, verses, ...props }, ref) => {
-  const emphasizeVerses = useBibleStudyEmphasizeVerses();
+  const { emphasizeVerses } = useBibleStudyEmphasizeVerses();
 
   return (
     <div
