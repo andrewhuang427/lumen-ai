@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { type User } from "@prisma/client";
 import { Sparkles } from "lucide-react";
 import useAuth from "../auth/use-auth";
 import SubscriptionDialog from "../subscription/subscription-dialog";

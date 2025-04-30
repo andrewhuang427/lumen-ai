@@ -13,16 +13,12 @@ import {
 import { loadStripe } from "@stripe/stripe-js";
 import { Dialog } from "../ui/dialog";
 
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PK as string;
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PK!;
 const stripePromise = loadStripe(stripePublishableKey);
 
 export default function SubscriptionDialog() {
   async function fetchClientSecret() {
-    const response = await fetch("/api/stripe/create-payment-intent", {
-      method: "POST",
-    });
-    const data = await response.json();
-    return data.clientSecret;
+    return "replace_this_with_client_secret";
   }
 
   return (

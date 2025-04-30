@@ -41,7 +41,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
     openai: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
-    stripe: new Stripe(process.env.STRIPE_SECRET_KEY as string),
+    stripe: new Stripe(process.env.STRIPE_SECRET_KEY!),
     supabaseUser,
     user,
     ...opts,

@@ -8,6 +8,7 @@ import {
 import { z } from "zod";
 import { type Context } from "../context";
 import { type ModelType, TierConfig } from "../utils/model-config";
+import { PaymentsService } from "./payments-service";
 import { PermissionsService } from "./permissions-service";
 
 async function getAuthenticatedUser(context: Context): Promise<User | null> {
@@ -75,6 +76,10 @@ async function createAuthenticatedUser(
       username = `${username}-${counter}`;
       counter++;
     }
+  }
+
+  if (newUser != null) {
+    void PaymentsService.getOrCreateStripeCustomer(context, newUser);
   }
 
   return newUser;
