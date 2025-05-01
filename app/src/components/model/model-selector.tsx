@@ -1,5 +1,7 @@
+import { UserTier } from "@prisma/client";
 import { Loader2, SparklesIcon } from "lucide-react";
 import { type ModelType } from "../../server/utils/model-config";
+import useAuth from "../auth/use-auth";
 import {
   Select,
   SelectContent,
@@ -14,6 +16,7 @@ import useModelContext from "./use-model-context";
 export function ModelSelector() {
   const { availableModels, isLoadingAvailableModels, model, setModel } =
     useModelContext();
+  const { user } = useAuth();
 
   return (
     <Select
@@ -41,8 +44,14 @@ export function ModelSelector() {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel className="text-xs font-medium text-muted-foreground">
-            Select a model
+          <SelectLabel className="flex flex-col gap-1 text-muted-foreground">
+            <span className="font-medium">Select a model</span>
+            {user?.tier === UserTier.FREE && (
+              <span className="flex items-center gap-1 text-xs font-normal text-muted-foreground">
+                <SparklesIcon className="mr-1 h-3.5 w-3.5 text-yellow-500" />
+                Upgrade to Lumen Pro to access all models
+              </span>
+            )}
           </SelectLabel>
           {availableModels.map((model) => (
             <SelectItem key={model.type} value={model.type}>
