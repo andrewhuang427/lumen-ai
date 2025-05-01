@@ -79,6 +79,7 @@ export default function AuthContextProvider({
       user,
       session,
       isLoading: isFetchingAuthenticatedUser,
+      setUser,
     }),
     [session, user, isFetchingAuthenticatedUser],
   );

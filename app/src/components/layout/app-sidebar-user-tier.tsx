@@ -1,5 +1,6 @@
 import { type User } from "@prisma/client";
-import { Sparkles } from "lucide-react";
+import { Settings, Sparkles } from "lucide-react";
+import Link from "next/link";
 import useAuth from "../auth/use-auth";
 import SubscriptionDialog from "../subscription/subscription-dialog";
 import { Card } from "../ui/card";
@@ -12,25 +13,27 @@ export default function AppSidebarUserTier() {
   }
 
   return (
-    <Card className="flex flex-col gap-2.5 overflow-hidden p-2.5">
-      {user.tier === "FREE" ? (
+    <Card className="flex flex-col gap-4 overflow-hidden p-4">
+      {user.tier === "FREE" && (
         <>
-          <div className="text-sm text-muted-foreground">
-            Limited access to features
-          </div>
-          <div className="flex">
-            <TierBadge tier={user.tier} />
+          <div className="text-xs text-muted-foreground">
+            Upgrade to premium to unlock an improved Lumen model and premium
+            features.
           </div>
           <SubscriptionDialog />
         </>
-      ) : (
+      )}
+      {user.tier === "PREMIUM" && (
         <>
-          <div className="text-sm text-muted-foreground">
-            Unlimited access to all features
+          <div className="flex items-start justify-between gap-4">
+            <div className="grow text-xs text-muted-foreground">
+              You currently have access to all of Lumen&apos;s features.
+            </div>
+            <Link href={`/@${user.username}`}>
+              <Settings className="size-4 shrink-0 text-muted-foreground transition-all duration-300 ease-in-out hover:text-secondary" />
+            </Link>
           </div>
-          <div className="flex">
-            <TierBadge tier={user.tier} />
-          </div>
+          <TierBadge tier={user.tier} />
         </>
       )}
     </Card>
@@ -39,9 +42,11 @@ export default function AppSidebarUserTier() {
 
 function TierBadge({ tier }: { tier: User["tier"] }) {
   return (
-    <div className="flex items-center gap-1.5 rounded-full bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-      {tier === "PREMIUM" && <Sparkles className="size-4 text-primary" />}
-      {tier === "PREMIUM" ? "Premium" : "Free"} tier
+    <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-xs font-medium text-muted-foreground">
+        {tier === "PREMIUM" && <Sparkles className="size-4 text-primary" />}
+        {tier === "PREMIUM" ? "Premium" : "Free"} tier
+      </div>
     </div>
   );
 }

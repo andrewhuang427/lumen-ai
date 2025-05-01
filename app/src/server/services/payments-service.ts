@@ -31,12 +31,13 @@ async function getOrCreateStripeCustomer(
   return userStripeCustomer;
 }
 
-async function getProducts(context: Context): Promise<
-  {
-    product: Stripe.Product;
-    price: Stripe.Price;
-  }[]
-> {
+type Product = {
+  name: string;
+  description: string;
+  price: Stripe.Price;
+};
+
+async function getProducts(context: Context): Promise<Product[]> {
   const stripe = context.stripe;
   const stripeProducts = await stripe.products.list({
     active: true,
@@ -51,7 +52,11 @@ async function getProducts(context: Context): Promise<
       if (firstPrice == null) {
         return null;
       }
-      return { product, price: firstPrice };
+      return {
+        name: product.name,
+        description: product.description ?? "",
+        price: firstPrice,
+      };
     }),
   );
 
@@ -91,10 +96,10 @@ async function createPaymentIntent(context: Context, priceId: string) {
   };
 }
 
-async function getPaymentIntent(
+async function getPaymentIntentStatus(
   context: Context,
   paymentIntentId: string,
-): Promise<Stripe.PaymentIntent> {
+): Promise<Stripe.PaymentIntent.Status> {
   const user = context.user;
   const stripe = context.stripe;
 
@@ -118,12 +123,13 @@ async function getPaymentIntent(
     throw new Error("Stripe customer not found");
   }
 
-  return paymentIntent;
+  return paymentIntent.status;
 }
 
-async function updateSubscription(subscription: Stripe.Subscription) {
+async function updateSubscription(
+  subscription: Stripe.Subscription,
+): Promise<User | null> {
   const customerId = subscription.customer as string;
-
   const stripeUser = await db.userStripeCustomer.findUnique({
     where: { stripeCustomerId: customerId },
     include: { user: true },
@@ -136,31 +142,79 @@ async function updateSubscription(subscription: Stripe.Subscription) {
   const user = stripeUser.user;
   const status = subscription.status;
 
-  if (status === "active") {
-    await db.user.update({
-      where: { id: user.id },
-      data: { tier: UserTier.PREMIUM },
-    });
-  }
+  try {
+    if (status === "active" || status === "trialing") {
+      return await db.user.update({
+        where: { id: user.id },
+        data: { tier: UserTier.PREMIUM },
+      });
+    }
 
-  if (status === "incomplete_expired") {
-    await db.user.update({
-      where: { id: user.id },
-      data: { tier: UserTier.FREE },
-    });
-  }
+    if (
+      status === "canceled" ||
+      status === "incomplete_expired" ||
+      status === "incomplete" ||
+      status === "past_due" ||
+      status === "unpaid" ||
+      status === "paused"
+    ) {
+      return await db.user.update({
+        where: { id: user.id },
+        data: { tier: UserTier.FREE },
+      });
+    }
 
-  if (status === "incomplete") {
-    await db.user.update({
-      where: { id: user.id },
-      data: { tier: UserTier.FREE },
-    });
+    return null;
+  } catch {
+    return null;
   }
 }
+
+async function getActiveSubscription(
+  context: Context,
+): Promise<Stripe.Subscription | null> {
+  if (context.user == null) {
+    throw new Error("User not found");
+  }
+
+  const userStripeCustomer = await getOrCreateStripeCustomer(
+    context,
+    context.user,
+  );
+
+  const stripe = context.stripe;
+  const subscriptions = await stripe.subscriptions.list({
+    customer: userStripeCustomer.stripeCustomerId,
+  });
+
+  const activeSubscription = subscriptions.data.find(
+    (subscription) => subscription.status === "active",
+  );
+
+  return activeSubscription ?? null;
+}
+
+async function cancelSubscription(context: Context): Promise<boolean> {
+  if (context.user == null) {
+    throw new Error("User not found");
+  }
+
+  const activeSubscription = await getActiveSubscription(context);
+  if (activeSubscription == null) {
+    throw new Error("No active subscription");
+  }
+
+  const stripe = context.stripe;
+  await stripe.subscriptions.cancel(activeSubscription.id);
+  return true;
+}
+
 export const PaymentsService = {
   getOrCreateStripeCustomer,
   getProducts,
   createPaymentIntent,
-  getPaymentIntent,
+  getPaymentIntentStatus,
   updateSubscription,
+  getActiveSubscription,
+  cancelSubscription,
 };

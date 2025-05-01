@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "../ui/button";
+import { Button, type ButtonProps } from "../ui/button";
 import {
   DialogContent,
   DialogHeader,
@@ -15,7 +15,15 @@ import { Dialog } from "../ui/dialog";
 import PaymentForm from "./payments/payment-form";
 import SubscriptionProductCard from "./subscription-product-card";
 
-export default function SubscriptionDialog() {
+type Props = {
+  size?: ButtonProps["size"];
+  label?: string;
+};
+
+export default function SubscriptionDialog({
+  size = "sm",
+  label = "Upgrade to premium",
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
 
@@ -44,16 +52,20 @@ export default function SubscriptionDialog() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
+          size={size}
           variant="secondary"
-          size="sm"
           className="w-full"
           disabled={isLoadingProducts || isCreatingPaymentIntent}
           onClick={fetchClientSecret}
         >
-          {isCreatingPaymentIntent && (
-            <Loader2 className="h-4 w-4 animate-spin" />
+          {isCreatingPaymentIntent ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Loading...</span>
+            </>
+          ) : (
+            label
           )}
-          Upgrade to Premium
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -61,8 +73,15 @@ export default function SubscriptionDialog() {
           <DialogTitle>Subscribe to Lumen Pro</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          {products?.map((p) => {
-            return <SubscriptionProductCard key={p.product.id} {...p} />;
+          {products?.map((product, index) => {
+            return (
+              <SubscriptionProductCard
+                key={index}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+              />
+            );
           })}
           {clientSecret !== "" && <PaymentForm clientSecret={clientSecret} />}
         </div>

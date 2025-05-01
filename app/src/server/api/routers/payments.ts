@@ -11,9 +11,15 @@ export const paymentsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return PaymentsService.createPaymentIntent(ctx, input.priceId);
     }),
-  getPaymentIntent: authenticatedProcedure
+  getPaymentIntentStatus: authenticatedProcedure
     .input(z.object({ paymentIntentId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return PaymentsService.getPaymentIntent(ctx, input.paymentIntentId);
+      return PaymentsService.getPaymentIntentStatus(ctx, input.paymentIntentId);
     }),
+  getActiveSubscription: authenticatedProcedure.query(async ({ ctx }) => {
+    return PaymentsService.getActiveSubscription(ctx);
+  }),
+  cancelSubscription: authenticatedProcedure.mutation(async ({ ctx }) => {
+    return PaymentsService.cancelSubscription(ctx);
+  }),
 });
