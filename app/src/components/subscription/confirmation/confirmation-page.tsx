@@ -14,7 +14,7 @@ export default function ConfirmationPage({ paymentIntentStatus }: Props) {
     <div className="flex h-full w-full items-center justify-center">
       <div className="flex max-w-md flex-col gap-4 rounded-lg border bg-sidebar p-6">
         <h1 className="text-lg font-medium">Payment confirmation</h1>
-        {paymentIntentStatus === "succeeded" && (
+        {paymentIntentStatus === "succeeded" ? (
           <p className="flex items-start gap-2">
             <CheckCircle className="mt-1 h-5 w-5 shrink-0 text-green-500" />
             <span className="text-sm text-muted-foreground">
@@ -22,8 +22,7 @@ export default function ConfirmationPage({ paymentIntentStatus }: Props) {
               features.
             </span>
           </p>
-        )}
-        {paymentIntentStatus === "canceled" && (
+        ) : (
           <p className="flex items-start gap-2">
             <XCircle className="mt-1 h-5 w-5 shrink-0 text-red-500" />
             <span className="text-sm text-muted-foreground">

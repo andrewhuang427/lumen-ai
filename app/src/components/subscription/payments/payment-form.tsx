@@ -22,7 +22,6 @@ export default function PaymentForm({ clientSecret }: Props) {
 
 function PaymentFormImpl() {
   const [isPending, setIsPending] = useState(false);
-
   const elements = useElements();
   const stripe = useStripe();
 

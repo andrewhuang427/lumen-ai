@@ -63,7 +63,10 @@ async function getProducts(context: Context): Promise<Product[]> {
   return enrichedProducts.filter((product) => product != null);
 }
 
-async function createPaymentIntent(context: Context, priceId: string) {
+async function createPaymentIntent(
+  context: Context,
+  priceId: string,
+): Promise<{ subscriptionId: string; clientSecret: string }> {
   if (context.user == null) {
     throw new Error("User not found");
   }
