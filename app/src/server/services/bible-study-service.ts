@@ -157,6 +157,7 @@ async function getSessions(
 ): Promise<BibleStudySession[]> {
   return await ctx.db.bibleStudySession.findMany({
     where: { user_id: userId },
+    orderBy: { created_at: "desc" },
   });
 }
 
