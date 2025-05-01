@@ -1,12 +1,16 @@
 import { type User } from "@prisma/client";
 import { type User as SupabaseUser } from "@supabase/supabase-js";
-import OpenAI from "openai";
+import { type OpenAI } from "openai";
+import { type Stripe } from "stripe";
 import { db } from "~/server/db";
+import { openai } from "./openai";
+import { stripe } from "./stripe";
 import { serverSupabase } from "./supabase/supabase-server-client";
 
 export type Context = {
   db: typeof db;
   openai: OpenAI;
+  stripe: Stripe;
   headers: Headers;
   supabaseUser: SupabaseUser | null;
   user: User | null;
@@ -38,7 +42,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   return {
     db,
-    openai: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
+    openai,
+    stripe,
     supabaseUser,
     user,
     ...opts,

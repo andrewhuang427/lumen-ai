@@ -225,6 +225,8 @@ model User {
 
     sentFollowRequests     UserFollowRequest[] @relation("FromUser")
     receivedFollowRequests UserFollowRequest[] @relation("ToUser")
+
+    stripeCustomer UserStripeCustomer[]
 }
 
 enum UserTier {
@@ -251,4 +253,13 @@ model UserFollowRequest {
 
     @@index([from_user_id, status, createdAt])
     @@index([to_user_id, status, createdAt])
+}
+
+model UserStripeCustomer {
+    stripeCustomerId String @unique
+    userId           String @id @unique
+    user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 }

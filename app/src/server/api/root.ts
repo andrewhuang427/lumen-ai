@@ -4,6 +4,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { bibleStudyPostRouter } from "./routers/bible-study-post";
 import { chatRouter } from "./routers/chat";
 import { discoverFeedRouter } from "./routers/discover-feed";
+import { paymentsRouter } from "./routers/payments";
 import { userRouter } from "./routers/user";
 
 /**
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   discover: discoverFeedRouter,
   chat: chatRouter,
   user: userRouter,
+  payments: paymentsRouter,
 });
 
 // export type definition of API

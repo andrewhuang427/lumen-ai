@@ -19,6 +19,7 @@ import {
 import AppSidebarFooterLinks from "./app-sidebar-footer-links";
 import AppSidebarUserContent from "./app-sidebar-user-content";
 import AppSidebarUserMenu from "./app-sidebar-user-menu";
+import AppSidebarUserTier from "./app-sidebar-user-tier";
 
 export default function AppSidebar() {
   const { user, isLoading } = useAuth();
@@ -50,6 +51,7 @@ export default function AppSidebar() {
       <SidebarFooter>
         {user != null && (
           <>
+            <AppSidebarUserTier />
             <AppSidebarUserMenu />
             <Separator />
           </>
