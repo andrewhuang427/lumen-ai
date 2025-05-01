@@ -138,12 +138,17 @@ async function updateSubscription(
     include: { user: true },
   });
 
+  console.log("subscription", subscription);
+  console.log("stripeUser", stripeUser);
+
   if (stripeUser == null) {
     throw new Error("User not found");
   }
 
   const user = stripeUser.user;
   const status = subscription.status;
+
+  console.log("status", status);
 
   try {
     if (status === "active" || status === "trialing") {
