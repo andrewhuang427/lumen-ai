@@ -242,8 +242,8 @@ async function getRecentActivities(
 async function getActivityStats(
   context: Context,
   userId: string,
-  startDate: Date,
-  endDate: Date,
+  startDate?: Date,
+  endDate?: Date,
 ) {
   const activities = await context.db.userStudyActivity.findMany({
     where: {

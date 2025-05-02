@@ -17,8 +17,8 @@ export const userActivityRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
-        startDate: z.date(),
-        endDate: z.date(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {

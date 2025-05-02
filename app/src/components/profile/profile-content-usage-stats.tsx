@@ -25,14 +25,35 @@ function ProfileContentUsageStatsImpl() {
   const { userProfile } = useProfileContext();
 
   const {
-    data: userActivityStats,
-    refetch: refetchUserActivityStats,
-    isLoading,
-    isRefetching,
+    data: userStreakInfo,
+    refetch: refetchUserStreakInfo,
+    isLoading: isLoadingStreakInfo,
+    isRefetching: isRefetchingStreakInfo,
   } = api.userActivity.getUserStreakInfo.useQuery(
     { userId: userProfile?.id ?? "" },
     { enabled: userProfile != null },
   );
+
+  const {
+    data: userActivityStats,
+    refetch: refetchUserActivityStats,
+    isLoading: isLoadingActivityStats,
+    isRefetching: isRefetchingActivityStats,
+  } = api.userActivity.getActivityStats.useQuery(
+    { userId: userProfile?.id ?? "" },
+    { enabled: userProfile != null },
+  );
+
+  const isLoading =
+    isLoadingActivityStats ||
+    isLoadingStreakInfo ||
+    isRefetchingActivityStats ||
+    isRefetchingStreakInfo;
+
+  function handleRefreshStats() {
+    void refetchUserActivityStats();
+    void refetchUserStreakInfo();
+  }
 
   return (
     <>
@@ -41,10 +62,10 @@ function ProfileContentUsageStatsImpl() {
         endContent={
           <Button
             variant="outline"
-            onClick={() => refetchUserActivityStats()}
+            onClick={handleRefreshStats}
             disabled={isLoading}
           >
-            {isLoading || isRefetching ? (
+            {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <RefreshCcw className="h-4 w-4" />
@@ -57,22 +78,22 @@ function ProfileContentUsageStatsImpl() {
           <StatsCard
             icon={<Flame size={16} className="text-yellow-500" />}
             label="Current streak"
-            value={userActivityStats?.current_streak_days ?? 0}
+            value={userStreakInfo?.current_streak_days ?? 0}
           />
           <StatsCard
             icon={<Flame size={16} className="text-yellow-500" />}
             label="Longest streak"
-            value={userActivityStats?.longest_streak_days ?? 0}
+            value={userStreakInfo?.longest_streak_days ?? 0}
           />
           <StatsCard
             icon={<CalendarDays size={16} className="text-green-500" />}
             label="Days studied"
-            value={userActivityStats?.total_study_days ?? 0}
+            value={userStreakInfo?.total_study_days ?? 0}
           />
           <StatsCard
             icon={<Notebook size={16} className="text-blue-500" />}
             label="Notes created"
-            value={userActivityStats?.has_studied_today ? 1 : 0}
+            value={userActivityStats?.notesCreated ?? 0}
           />
         </div>
       </ProfileSectionContainer>
@@ -88,7 +109,7 @@ function StatsCard({
 }: {
   icon: React.ReactNode;
   label: string;
-  value: number | boolean;
+  value: number | boolean | string;
 }) {
   return (
     <div className="flex flex-col gap-2 rounded-md border bg-muted p-4">
