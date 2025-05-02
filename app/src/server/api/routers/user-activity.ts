@@ -29,4 +29,13 @@ export const userActivityRouter = createTRPCRouter({
         input.endDate,
       );
     }),
+  getActivityCalendar: authenticatedProcedure
+    .input(z.object({ userId: z.string(), year: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return UserActivityService.getActivityCalendar(
+        ctx,
+        input.userId,
+        input.year,
+      );
+    }),
 });

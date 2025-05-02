@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CalendarDays,
   Flame,
@@ -5,8 +7,18 @@ import {
   Notebook,
   RefreshCcw,
 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { type Activity, ActivityCalendar } from "react-activity-calendar";
+import { type UserProfile } from "../../server/services/user-service";
 import { api } from "../../trpc/react";
 import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Separator } from "../ui/separator";
 import ProfileSectionContainer from "./shared/profile-section-container";
 import useProfileContext from "./use-profile-context";
@@ -18,11 +30,15 @@ export default function ProfileContentUsageStats() {
     return null;
   }
 
-  return <ProfileContentUsageStatsImpl />;
+  return <ProfileContentUsageStatsImpl userProfile={userProfile} />;
 }
 
-function ProfileContentUsageStatsImpl() {
-  const { userProfile } = useProfileContext();
+function ProfileContentUsageStatsImpl({
+  userProfile,
+}: {
+  userProfile: UserProfile;
+}) {
+  const [year, setYear] = useState(new Date().getFullYear());
 
   const {
     data: userStreakInfo,
@@ -44,15 +60,28 @@ function ProfileContentUsageStatsImpl() {
     { enabled: userProfile != null },
   );
 
+  const {
+    data: activityCalendarData = [],
+    isLoading: isLoadingActivityCalendar,
+    refetch: refetchActivityCalendarData,
+    isRefetching: isRefetchingActivityCalendarData,
+  } = api.userActivity.getActivityCalendar.useQuery(
+    { userId: userProfile?.id ?? "", year },
+    { enabled: userProfile != null },
+  );
+
   const isLoading =
     isLoadingActivityStats ||
     isLoadingStreakInfo ||
+    isLoadingActivityCalendar ||
     isRefetchingActivityStats ||
-    isRefetchingStreakInfo;
+    isRefetchingStreakInfo ||
+    isRefetchingActivityCalendarData;
 
   function handleRefreshStats() {
     void refetchUserActivityStats();
     void refetchUserStreakInfo();
+    void refetchActivityCalendarData();
   }
 
   return (
@@ -96,6 +125,15 @@ function ProfileContentUsageStatsImpl() {
             value={userActivityStats?.notesCreated ?? 0}
           />
         </div>
+        <BibleStudyActivityCalendar
+          userProfile={userProfile}
+          activityCalendarData={activityCalendarData}
+          year={year}
+          isLoading={
+            isLoadingActivityCalendar || isRefetchingActivityCalendarData
+          }
+          onYearChange={setYear}
+        />
       </ProfileSectionContainer>
       <Separator />
     </>
@@ -118,6 +156,69 @@ function StatsCard({
         <div className="text-sm">{label}</div>
       </div>
       <div className="text-xl font-medium">{value}</div>
+    </div>
+  );
+}
+
+function BibleStudyActivityCalendar({
+  userProfile,
+  activityCalendarData,
+  year,
+  isLoading,
+  onYearChange,
+}: {
+  userProfile: UserProfile;
+  activityCalendarData: Activity[];
+  year: number;
+  isLoading: boolean;
+  onYearChange: (year: number) => void;
+}) {
+  const calendarData = useMemo((): Activity[] => {
+    const today = new Date();
+    const endOfYear = new Date(year, 11, 31);
+    const endDate = endOfYear > today ? today : endOfYear;
+    const endDateStr = endDate.toISOString().split("T")[0];
+    if (activityCalendarData.length === 0) {
+      return [
+        { date: `${year}-01-01`, count: 0, level: 0 },
+        { date: endDateStr ?? "", count: 0, level: 0 },
+      ];
+    }
+    return activityCalendarData;
+  }, [activityCalendarData, year]);
+
+  if (userProfile == null) {
+    return null;
+  }
+
+  return (
+    <div className="relative flex w-full flex-col gap-6 rounded-md border bg-muted p-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CalendarDays size={16} className="text-blue-500" />
+          <div className="text-sm text-muted-foreground">
+            Bible study activity calendar
+          </div>
+        </div>
+        <Select
+          value={year.toString()}
+          onValueChange={(value) => onYearChange(parseInt(value))}
+        >
+          <SelectTrigger className="w-24">
+            <SelectValue placeholder="Year" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="2025">2025</SelectItem>
+            <SelectItem value="2024">2024</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <ActivityCalendar data={calendarData} showWeekdayLabels={true} />
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-background/50 text-xs text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading activity data...
+        </div>
+      )}
     </div>
   );
 }

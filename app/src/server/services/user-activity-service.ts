@@ -1,6 +1,7 @@
 import { type BibleStudySession, StudyActivityType } from "@prisma/client";
 import { type JsonValue } from "@prisma/client/runtime/library";
 import { differenceInCalendarDays, startOfDay } from "date-fns";
+import { type Activity } from "react-activity-calendar";
 import { type Context } from "../context";
 import { type TypedBibleStudyNote } from "../utils/bible-note-utils";
 
@@ -279,6 +280,84 @@ async function getActivityStats(
   };
 }
 
+async function getActivityCalendar(
+  context: Context,
+  userId: string,
+  year: number,
+): Promise<Activity[]> {
+  const activities = await context.db.userStudyActivity.findMany({
+    where: {
+      user_id: userId,
+      activity_date: {
+        gte: new Date(year, 0, 1),
+        lte: new Date(year, 11, 31),
+      },
+    },
+  });
+
+  const dateCountMap: Record<string, number> = {};
+
+  for (const activity of activities) {
+    if (activity.activity_date) {
+      const dateObj = new Date(activity.activity_date);
+      const normalizedDate = startOfDay(dateObj);
+      const dateStr = normalizedDate.toISOString().split("T")[0];
+      if (dateStr === undefined) {
+        continue;
+      }
+      if (dateCountMap[dateStr] === undefined) {
+        dateCountMap[dateStr] = 0;
+      } else {
+        dateCountMap[dateStr] += 1;
+      }
+    }
+  }
+
+  const calendarData: Activity[] = Object.entries(dateCountMap).map(
+    ([dateStr, count]) => {
+      let level = 0;
+      if (count >= 10) level = 4;
+      else if (count >= 7) level = 3;
+      else if (count >= 4) level = 2;
+      else if (count >= 2) level = 1;
+      return {
+        date: dateStr,
+        count,
+        level,
+      };
+    },
+  );
+
+  const startDate = new Date(year, 0, 1);
+  const startDateStr = startDate.toISOString().split("T")[0];
+  if (
+    startDateStr != null &&
+    !calendarData.some((d) => d.date === startDateStr)
+  ) {
+    calendarData.push({
+      date: startDateStr,
+      count: 0,
+      level: 0,
+    });
+  }
+
+  const today = new Date();
+  const endOfYear = new Date(year, 11, 31);
+  const endDate = endOfYear > today ? today : endOfYear;
+  const endDateStr = endDate.toISOString().split("T")[0];
+  if (endDateStr != null && !calendarData.some((d) => d.date === endDateStr)) {
+    calendarData.push({
+      date: endDateStr,
+      count: 0,
+      level: 0,
+    });
+  }
+
+  return calendarData.sort((a, b) => {
+    return new Date(a.date).getTime() - new Date(b.date).getTime();
+  });
+}
+
 export const UserActivityService = {
   logChapterRead,
   logSessionCreated,
@@ -286,4 +365,5 @@ export const UserActivityService = {
   getUserStreakInfo,
   getRecentActivities,
   getActivityStats,
+  getActivityCalendar,
 };
