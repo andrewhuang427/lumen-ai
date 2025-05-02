@@ -51,6 +51,7 @@ model BibleChapter {
     start_for_sessions BibleStudySession[] @relation("startChapter")
     end_for_sessions   BibleStudySession[] @relation("endChapter")
     last_visited_users User[]              @relation("LastVisitedChapter")
+    study_activities   UserStudyActivity[]
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
@@ -220,6 +221,10 @@ model User {
     last_visited_chapter_id    String?
     last_visited_chapter       BibleChapter? @relation(name: "LastVisitedChapter", fields: [last_visited_chapter_id], references: [id], onDelete: SetNull)
 
+    // Streak related
+    study_streak     UserStudyStreak?
+    study_activities UserStudyActivity[]
+
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
@@ -262,4 +267,47 @@ model UserStripeCustomer {
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
+}
+
+model UserStudyStreak {
+    id                     String   @id @default(uuid())
+    current_streak_days    Int      @default(0)
+    longest_streak_days    Int      @default(0)
+    last_study_date        DateTime
+    total_study_days       Int      @default(0)
+    total_chapters_studied Int      @default(0)
+    streak_start_date      DateTime @default(now())
+    user_id                String   @unique
+    user                   User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id])
+}
+
+enum StudyActivityType {
+    CHAPTER_READ
+    SESSION_CREATED
+    NOTE_CREATED
+    POST_CREATED
+}
+
+model UserStudyActivity {
+    id            String            @id @default(uuid())
+    activity_type StudyActivityType
+    activity_date DateTime
+    reference_id  String? // Could point to a chapter, session, note, or post ID
+    time_spent    Int? // Time spent in seconds, if tracked
+    metadata      Json? // Additional information about the activity
+    chapter_id    String?
+    chapter       BibleChapter?     @relation(fields: [chapter_id], references: [id], onDelete: SetNull)
+    user_id       String
+    user          User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id, activity_date])
+    @@index([user_id, activity_type])
 }
