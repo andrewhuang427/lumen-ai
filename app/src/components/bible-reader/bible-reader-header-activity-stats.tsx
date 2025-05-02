@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowRight, Flame, Info, Loader2, Snowflake } from "lucide-react";
+import { ArrowRight, Flame, Info, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { cn } from "../../lib/utils";
 import { api } from "../../trpc/react";
 import useAuth from "../auth/use-auth";
 import { Button } from "../ui/button";
@@ -28,22 +29,23 @@ export default function BibleReaderHeaderActivityStats() {
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-full border bg-muted py-2 pl-4 pr-2">
+    <div className="flex items-center gap-2.5 overflow-x-auto rounded-full border bg-muted py-2 pl-4 pr-2 shadow">
       <StreakInfo />
       <Stat
         icon={
-          currentStreakDays > 0 ? (
-            <Flame size={16} className="text-yellow-500" />
-          ) : (
-            <Flame size={16} className="text-muted-foreground" />
-          )
+          <Flame
+            size={16}
+            className={cn(
+              "shrink-0 text-muted-foreground",
+              currentStreakDays > 0 ? "text-yellow-500" : "",
+            )}
+          />
         }
-        label="Current streak"
+        label="Study streak"
         value={currentStreakDays}
         isLoading={isLoadingStreakInfo}
       />
 
-      <Separator orientation="vertical" className="h-6" />
       <Link href={`/@${user.username}`}>
         <Button variant="outline" size="sm" className="rounded-full">
           More stats
@@ -66,10 +68,10 @@ function Stat({
   isLoading: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex shrink-0 items-center gap-2">
       {icon}
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="flex h-7 min-w-7 items-center justify-center rounded-sm bg-background px-1.5 py-0.5 text-sm font-medium">
+      <p className="shrink-0 text-sm text-muted-foreground">{label}</p>
+      <p className="flex h-7 min-w-7 items-center justify-center rounded-sm border bg-background px-1.5 py-0.5 text-sm font-medium">
         {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : value}
       </p>
     </div>
@@ -80,7 +82,7 @@ function StreakInfo() {
   return (
     <HoverCard openDelay={0}>
       <HoverCardTrigger asChild>
-        <Info size={16} className="text-muted-foreground" />
+        <Info size={16} className="shrink-0 text-muted-foreground" />
       </HoverCardTrigger>
       <HoverCardContent align="start" className="mt-2 flex flex-col gap-2">
         <p className="text-xs leading-normal text-muted-foreground">
