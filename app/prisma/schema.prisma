@@ -290,7 +290,6 @@ enum StudyActivityType {
     CHAPTER_READ
     SESSION_CREATED
     NOTE_CREATED
-    POST_CREATED
 }
 
 model UserStudyActivity {

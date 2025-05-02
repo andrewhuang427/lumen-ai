@@ -1,7 +1,8 @@
-import { StudyActivityType } from "@prisma/client";
+import { type BibleStudySession, StudyActivityType } from "@prisma/client";
 import { type JsonValue } from "@prisma/client/runtime/library";
 import { differenceInCalendarDays, startOfDay } from "date-fns";
 import { type Context } from "../context";
+import { type TypedBibleStudyNote } from "../utils/bible-note-utils";
 
 /**
  * Updates a user's study streak based on their latest activity
@@ -154,15 +155,14 @@ async function logChapterRead(
 async function logSessionCreated(
   context: Context,
   userId: string,
-  sessionId: string,
-  chapterId?: string,
+  session: BibleStudySession,
 ): Promise<void> {
   await logActivity(
     context,
     userId,
     StudyActivityType.SESSION_CREATED,
-    sessionId,
-    chapterId,
+    session.id,
+    session.start_chapter_id,
   );
 }
 
@@ -172,40 +172,16 @@ async function logSessionCreated(
 async function logNoteCreated(
   context: Context,
   userId: string,
-  noteId: string,
-  sessionId: string,
-  chapterId?: string,
+  note: TypedBibleStudyNote,
 ): Promise<void> {
-  const metadata = { sessionId };
+  const metadata = { note: note.session_id };
   await logActivity(
     context,
     userId,
     StudyActivityType.NOTE_CREATED,
-    noteId,
-    chapterId,
-    undefined,
-    metadata,
-  );
-}
-
-/**
- * Logs when a user creates a Bible study post
- */
-async function logPostCreated(
-  context: Context,
-  userId: string,
-  postId: string,
-  sessionId: string,
-  chapterId?: string,
-): Promise<void> {
-  const metadata = { sessionId };
-  await logActivity(
-    context,
-    userId,
-    StudyActivityType.POST_CREATED,
-    postId,
-    chapterId,
-    undefined,
+    note.id,
+    undefined, // chapterId
+    undefined, // timeSpent
     metadata,
   );
 }
@@ -289,9 +265,6 @@ async function getActivityStats(
   const notesCreated = activities.filter(
     (a) => a.activity_type === StudyActivityType.NOTE_CREATED,
   ).length;
-  const postsCreated = activities.filter(
-    (a) => a.activity_type === StudyActivityType.POST_CREATED,
-  ).length;
 
   const totalTimeSpent = activities.reduce((total, activity) => {
     return total + (activity.time_spent ?? 0);
@@ -301,7 +274,6 @@ async function getActivityStats(
     chaptersRead,
     sessionsCreated,
     notesCreated,
-    postsCreated,
     totalTimeSpent,
     totalActivities: activities.length,
   };
@@ -311,7 +283,6 @@ export const UserActivityService = {
   logChapterRead,
   logSessionCreated,
   logNoteCreated,
-  logPostCreated,
   getUserStreakInfo,
   getRecentActivities,
   getActivityStats,

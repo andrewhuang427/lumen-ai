@@ -7,8 +7,8 @@ import {
 import { z } from "zod";
 import { type Context } from "../context";
 import {
-  BibleStudyNoteUnderstandSchema,
   BibleStudyNoteQuestionsSchema,
+  BibleStudyNoteUnderstandSchema,
   toTypedNote,
   type CreateBibleStudyNoteType,
   type TypedBibleStudyNote,
@@ -26,6 +26,7 @@ import {
 } from "../utils/bible-utils";
 import { getModel, ModelSchema } from "../utils/model-config";
 import { PermissionsService } from "./permissions-service";
+import { UserActivityService } from "./user-activity-service";
 
 type CreateSessionInput = {
   title: string;
@@ -40,7 +41,7 @@ async function createSession(
   ctx: Context,
   input: CreateSessionInput,
 ): Promise<BibleStudySession> {
-  return await ctx.db.bibleStudySession.create({
+  const newSession = await ctx.db.bibleStudySession.create({
     data: {
       title: input.title,
       description: input.description,
@@ -50,6 +51,10 @@ async function createSession(
       user_id: input.userId,
     },
   });
+
+  void UserActivityService.logSessionCreated(ctx, input.userId, newSession);
+
+  return newSession;
 }
 
 async function createSessionFromBookDetails(
@@ -195,10 +200,11 @@ async function createNote(
   ctx: Context,
   input: CreateBibleStudyNoteType,
 ): Promise<TypedBibleStudyNote> {
-  await PermissionsService.validateBibleStudySessionBelongsToUser(
-    ctx,
-    input.sessionId,
-  );
+  const session =
+    await PermissionsService.validateBibleStudySessionBelongsToUser(
+      ctx,
+      input.sessionId,
+    );
 
   const notes = await getNotes(ctx, input.sessionId);
   const order = notes.length + 1;
@@ -212,7 +218,11 @@ async function createNote(
     },
   });
 
-  return toTypedNote(note);
+  const typedNote = toTypedNote(note);
+
+  void UserActivityService.logNoteCreated(ctx, session.user_id, typedNote);
+
+  return typedNote;
 }
 
 async function updateNote(
