@@ -6,6 +6,7 @@ import { chatRouter } from "./routers/chat";
 import { discoverFeedRouter } from "./routers/discover-feed";
 import { paymentsRouter } from "./routers/payments";
 import { userRouter } from "./routers/user";
+import { userActivityRouter } from "./routers/user-activity";
 
 /**
  * This is the primary router for your server.
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   discover: discoverFeedRouter,
   chat: chatRouter,
   user: userRouter,
+  userActivity: userActivityRouter,
   payments: paymentsRouter,
 });
 
