@@ -11,7 +11,7 @@ import {
 } from "../ui/dialog";
 
 import { UserTier } from "@prisma/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import useAuth from "../auth/use-auth";
 import { Dialog } from "../ui/dialog";
 
@@ -42,7 +42,11 @@ export default function CancelSubscriptionDialog() {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button disabled={isPending} variant="outline" className="shrink-0">
-          {isPending && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <X className="size-4" />
+          )}
           Cancel premium
         </Button>
       </DialogTrigger>
