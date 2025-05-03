@@ -1,7 +1,9 @@
-import { CalendarDays, Loader2 } from "lucide-react";
-import { useMemo } from "react";
-import ActivityCalendar, { Activity } from "react-activity-calendar";
-import { UserProfile } from "../../server/services/user-service";
+import { CalendarDays, Loader2, RefreshCcw } from "lucide-react";
+import { useMemo, useState } from "react";
+import ActivityCalendar, { type Activity } from "react-activity-calendar";
+import { type UserProfile } from "../../server/services/user-service";
+import { api } from "../../trpc/react";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectContent,
@@ -9,20 +11,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import ProfileUsageChartSection from "./shared/profile-usage-chart-section";
+
+type Props = {
+  userProfile: UserProfile;
+};
 
 export default function ProfileContentUsageStatsActivityCalendar({
   userProfile,
-  activityCalendarData,
-  year,
-  isLoading,
-  onYearChange,
-}: {
-  userProfile: UserProfile;
-  activityCalendarData: Activity[];
-  year: number;
-  isLoading: boolean;
-  onYearChange: (year: number) => void;
-}) {
+}: Props) {
+  const [year, setYear] = useState(new Date().getFullYear());
+
+  const {
+    data: activityCalendarData = [],
+    isLoading: isLoadingActivityCalendar,
+    refetch: refetchActivityCalendarData,
+    isRefetching: isRefetchingActivityCalendarData,
+  } = api.userActivity.getActivityCalendar.useQuery(
+    { userId: userProfile?.id ?? "", year },
+    { enabled: userProfile != null },
+  );
+
   const calendarData = useMemo((): Activity[] => {
     const today = new Date();
     const endOfYear = new Date(year, 11, 31);
@@ -37,44 +46,59 @@ export default function ProfileContentUsageStatsActivityCalendar({
     return activityCalendarData;
   }, [activityCalendarData, year]);
 
+  const isLoading =
+    isLoadingActivityCalendar || isRefetchingActivityCalendarData;
+
+  function handleRefreshStats() {
+    void refetchActivityCalendarData();
+  }
+
   if (userProfile == null) {
     return null;
   }
 
   return (
-    <div className="relative flex w-full flex-col gap-4 rounded-md border bg-muted p-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <CalendarDays size={16} className="text-blue-500" />
-          <div className="text-sm text-muted-foreground">
-            Bible study activity calendar
-          </div>
-        </div>
-        <Select
-          value={year.toString()}
-          onValueChange={(value) => onYearChange(parseInt(value))}
-        >
-          <SelectTrigger className="w-24">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="rounded-md border bg-background p-4">
+    <ProfileUsageChartSection
+      icon={<CalendarDays size={16} className="text-yellow-500" />}
+      title="Bible study activity calendar"
+      description="Stay consistent! Below is a calendar of your Bible study activity."
+      endActions={
+        <>
+          <Button
+            variant="outline"
+            onClick={handleRefreshStats}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCcw className="h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+          <Select
+            value={year.toString()}
+            onValueChange={(value) => setYear(parseInt(value))}
+          >
+            <SelectTrigger className="w-24">
+              <SelectValue placeholder="Year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2025">2025</SelectItem>
+              <SelectItem value="2024">2024</SelectItem>
+            </SelectContent>
+          </Select>
+        </>
+      }
+      chart={
         <ActivityCalendar
           data={calendarData}
           showWeekdayLabels={true}
           loading={isLoading}
         />
-      </div>
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-background/50 text-xs text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading activity data...
-        </div>
-      )}
-    </div>
+      }
+      loadingText="Loading activity data..."
+      isLoading={isLoading}
+    />
   );
 }

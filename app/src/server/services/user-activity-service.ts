@@ -4,6 +4,7 @@ import { differenceInCalendarDays, startOfDay } from "date-fns";
 import { type Activity } from "react-activity-calendar";
 import { type Context } from "../context";
 import { type TypedBibleStudyNote } from "../utils/bible-note-utils";
+import { BibleService } from "./bible-service";
 
 /**
  * Updates a user's study streak based on their latest activity
@@ -358,6 +359,73 @@ async function getActivityCalendar(
   });
 }
 
+type BookToChapterCoverage = Record<
+  string, // bookId
+  { chapters: Record<number, boolean> } // chapter number -> covered
+>;
+
+export type BookCoverage = {
+  name: string;
+  coverage: boolean[];
+};
+
+async function getBibleCoverage(
+  context: Context,
+  userId: string,
+  versionId: string,
+): Promise<BookCoverage[]> {
+  const booksWithChapterCounts = await BibleService.getBooksWithChapterCounts(
+    context,
+    versionId,
+  );
+
+  const bibleStudies = await context.db.bibleStudySession.findMany({
+    where: {
+      user_id: userId,
+    },
+    include: {
+      start_chapter: true,
+      end_chapter: true,
+    },
+  });
+
+  const bookToChapterCoverage: BookToChapterCoverage = {};
+  for (const bibleStudy of bibleStudies) {
+    const bookId = bibleStudy.start_chapter.book_id;
+    const startNumber = bibleStudy.start_chapter.number;
+    const endNumber = bibleStudy.end_chapter?.number ?? startNumber;
+    for (let chapterNum = startNumber; chapterNum <= endNumber; chapterNum++) {
+      if (bookToChapterCoverage[bookId] === undefined) {
+        bookToChapterCoverage[bookId] = {
+          chapters: {},
+        };
+      }
+      bookToChapterCoverage[bookId].chapters[chapterNum] = true;
+    }
+  }
+
+  const bookCoverages: BookCoverage[] = [];
+  for (const book of booksWithChapterCounts) {
+    const bookId = book.id;
+    const numChapters = book.chapters;
+    const coverageArray: boolean[] = [];
+    for (let chapterNum = 1; chapterNum <= numChapters; chapterNum++) {
+      const coverage = bookToChapterCoverage[bookId]?.chapters[chapterNum];
+      if (coverage == null) {
+        coverageArray[chapterNum - 1] = false;
+      } else {
+        coverageArray[chapterNum - 1] = true;
+      }
+    }
+    bookCoverages.push({
+      name: book.name,
+      coverage: coverageArray,
+    });
+  }
+
+  return bookCoverages;
+}
+
 export const UserActivityService = {
   logChapterRead,
   logSessionCreated,
@@ -366,4 +434,5 @@ export const UserActivityService = {
   getRecentActivities,
   getActivityStats,
   getActivityCalendar,
+  getBibleCoverage,
 };

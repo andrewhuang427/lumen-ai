@@ -38,4 +38,13 @@ export const userActivityRouter = createTRPCRouter({
         input.year,
       );
     }),
+  getBibleCoverage: authenticatedProcedure
+    .input(z.object({ userId: z.string(), versionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return UserActivityService.getBibleCoverage(
+        ctx,
+        input.userId,
+        input.versionId,
+      );
+    }),
 });

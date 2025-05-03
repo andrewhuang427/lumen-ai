@@ -30,6 +30,30 @@ async function getBooks(ctx: Context, versionId: string): Promise<BibleBook[]> {
   });
 }
 
+type BibleBookWithChapterCount = BibleBook & { chapters: number };
+
+async function getBooksWithChapterCounts(
+  ctx: Context,
+  versionId: string,
+): Promise<BibleBookWithChapterCount[]> {
+  const booksWithChapterCounts = await ctx.db.bibleBook.findMany({
+    where: { version_id: versionId },
+    orderBy: { number: "asc" },
+    include: {
+      _count: {
+        select: {
+          chapters: true,
+        },
+      },
+    },
+  });
+
+  return booksWithChapterCounts.map((book) => ({
+    ...book,
+    chapters: book._count.chapters,
+  }));
+}
+
 async function getChapters(
   ctx: Context,
   bookId: string,
@@ -103,6 +127,7 @@ async function getVerses(
 export const BibleService = {
   getVersions,
   getBooks,
+  getBooksWithChapterCounts,
   getChapters,
   getChapter,
   getVerses,
