@@ -7,29 +7,20 @@ import {
   Notebook,
   RefreshCcw,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { type Activity, ActivityCalendar } from "react-activity-calendar";
+import { useState } from "react";
 import { type UserProfile } from "../../server/services/user-service";
 import { api } from "../../trpc/react";
 import { Button } from "../ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Separator } from "../ui/separator";
+import ProfileContentUsageStatsActivityCalendar from "./profile-content-usage-stats-activity-calendar";
 import ProfileSectionContainer from "./shared/profile-section-container";
 import useProfileContext from "./use-profile-context";
 
 export default function ProfileContentUsageStats() {
   const { userProfile, canSeeProfile } = useProfileContext();
-
   if (!canSeeProfile || userProfile == null) {
     return null;
   }
-
   return <ProfileContentUsageStatsImpl userProfile={userProfile} />;
 }
 
@@ -133,7 +124,7 @@ function ProfileContentUsageStatsImpl({
             isLoading={isLoadingActivityStats || isRefetchingActivityStats}
           />
         </div>
-        <BibleStudyActivityCalendar
+        <ProfileContentUsageStatsActivityCalendar
           userProfile={userProfile}
           activityCalendarData={activityCalendarData}
           year={year}
@@ -168,69 +159,6 @@ function StatsCard({
       <div className="flex h-7 items-center text-xl font-medium">
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : value}
       </div>
-    </div>
-  );
-}
-
-function BibleStudyActivityCalendar({
-  userProfile,
-  activityCalendarData,
-  year,
-  isLoading,
-  onYearChange,
-}: {
-  userProfile: UserProfile;
-  activityCalendarData: Activity[];
-  year: number;
-  isLoading: boolean;
-  onYearChange: (year: number) => void;
-}) {
-  const calendarData = useMemo((): Activity[] => {
-    const today = new Date();
-    const endOfYear = new Date(year, 11, 31);
-    const endDate = endOfYear > today ? today : endOfYear;
-    const endDateStr = endDate.toISOString().split("T")[0];
-    if (activityCalendarData.length === 0) {
-      return [
-        { date: `${year}-01-01`, count: 0, level: 0 },
-        { date: endDateStr ?? "", count: 0, level: 0 },
-      ];
-    }
-    return activityCalendarData;
-  }, [activityCalendarData, year]);
-
-  if (userProfile == null) {
-    return null;
-  }
-
-  return (
-    <div className="relative flex w-full flex-col gap-6 rounded-md border bg-muted p-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <CalendarDays size={16} className="text-blue-500" />
-          <div className="text-sm text-muted-foreground">
-            Bible study activity calendar
-          </div>
-        </div>
-        <Select
-          value={year.toString()}
-          onValueChange={(value) => onYearChange(parseInt(value))}
-        >
-          <SelectTrigger className="w-24">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="2025">2025</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <ActivityCalendar data={calendarData} showWeekdayLabels={true} />
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center gap-2 bg-background/50 text-xs text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading activity data...
-        </div>
-      )}
     </div>
   );
 }
