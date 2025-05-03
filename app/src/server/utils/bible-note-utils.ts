@@ -106,6 +106,7 @@ export type CreateBibleStudyNoteType = z.infer<
 const BibleStudyNoteBaseSchema = z.object({
   id: z.string(),
   order: z.number(),
+  session_id: z.string(),
 });
 
 const BibleStudyNoteQuoteSchema = BibleStudyNoteBaseSchema.extend({

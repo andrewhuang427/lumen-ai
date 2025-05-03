@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import ProfileSectionContainer from "./shared/profile-section-container";
 import useProfileContext from "./use-profile-context";
 
 export default function ProfileContentPosts() {
@@ -25,15 +26,14 @@ export default function ProfileContentPosts() {
       <div className="flex items-center justify-center gap-2">
         <UserPlus className="h-4 w-4 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">
-          Follow user to see their posts
+          Follow user to see their stats and posts
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="mb-4 text-lg font-medium">Posts</div>
+    <ProfileSectionContainer title="Posts">
       {isLoading && (
         <div className="flex items-center justify-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -60,6 +60,6 @@ export default function ProfileContentPosts() {
           </Card>
         </Link>
       ))}
-    </div>
+    </ProfileSectionContainer>
   );
 }

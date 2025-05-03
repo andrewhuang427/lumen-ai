@@ -1,10 +1,11 @@
 import { UserTier } from "@prisma/client";
 import { Sparkles } from "lucide-react";
 import useAuth from "../auth/use-auth";
+import CancelSubscriptionDialog from "../subscription/cancel-subscription-dialog";
 import SubscriptionDialog from "../subscription/subscription-dialog";
 import { Separator } from "../ui/separator";
+import ProfileSectionContainer from "./shared/profile-section-container";
 import useProfileContext from "./use-profile-context";
-import CancelSubscriptionDialog from "../subscription/cancel-subscription-dialog";
 
 export default function ProfileContentSubscription() {
   const { userProfile } = useProfileContext();
@@ -16,14 +17,13 @@ export default function ProfileContentSubscription() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
-        <div className="text-lg font-medium">Subscription</div>
+      <ProfileSectionContainer title="Subscription">
         {user.tier === UserTier.PREMIUM ? (
           <SubscribedSection />
         ) : (
           <UnsubscribedSection />
         )}
-      </div>
+      </ProfileSectionContainer>
       <Separator />
     </>
   );

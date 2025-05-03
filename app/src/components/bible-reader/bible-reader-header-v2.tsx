@@ -5,6 +5,7 @@ import { useIsMobile } from "../../hooks/use-mobile";
 import SelectBibleBook from "../bible/select-bible-book";
 import SelectBibleChapter from "../bible/select-bible-chapter";
 import SelectBibleVersion from "../bible/select-bible-version";
+import BibleReaderHeaderActivityStats from "./bible-reader-header-activity-stats";
 import { useBibleReaderContext } from "./use-bible-reader-context";
 
 export default function BibleReaderHeaderV2() {
@@ -21,8 +22,9 @@ export default function BibleReaderHeaderV2() {
   const showTitle = selectedBook == null || selectedChapter == null;
 
   return (
-    <div className="relative flex w-full shrink-0 justify-center p-4 md:p-6">
-      <div className="relative flex items-center gap-4">
+    <div className="relative grid w-full shrink-0 grid-cols-3 gap-4 p-4 md:p-6">
+      <div className="col-span-1" />
+      <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -66,6 +68,9 @@ export default function BibleReaderHeaderV2() {
             Select a book and chapter.
           </p>
         )}
+      </div>
+      <div className="flex grow items-center justify-end">
+        <BibleReaderHeaderActivityStats />
       </div>
     </div>
   );
