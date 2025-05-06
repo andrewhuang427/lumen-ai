@@ -1,10 +1,16 @@
 "use client";
 
 import { BibleStudyNoteType } from "@prisma/client";
-import { MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDebounce } from "../../../../hooks/use-debounce";
 import { type TypedBibleStudyNoteFreeForm } from "../../../../server/utils/bible-note-utils";
+import { Button } from "../../../ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../../ui/collapsible";
 import { Label } from "../../../ui/label";
 import { getNoteId } from "../../bible-study-utils";
 import { useBibleStudySortableCard } from "../../hooks/use-bible-study-sortable-card";
@@ -24,6 +30,7 @@ type Props = {
 
 export default function BibleStudyNoteFreeForm({ note }: Props) {
   const [commentary, setCommentary] = useState(note.data.commentary);
+  const [isOpen, setIsOpen] = useState(true);
   const debouncedCommentary = useDebounce(commentary, 500);
 
   const { updateNote, isLoading } = useBibleStudyUpdateNote();
@@ -51,18 +58,27 @@ export default function BibleStudyNoteFreeForm({ note }: Props) {
   return (
     <div ref={setNodeRef} id={getNoteId(note.id)} style={style}>
       <NoteCard>
-        <NoteCardHeader {...attributes} {...listeners}>
-          <MessageSquare size={16} className="text-blue-500" />
-          <Label className="grow">Free form</Label>
-          <BibleStudyNoteDeleteButton noteId={note.id} />
-        </NoteCardHeader>
-        <NoteCardContent>
-          <BibleStudyNoteEditor
-            value={commentary}
-            onChange={(value) => setCommentary(value)}
-          />
-          {isLoading && <BibleStudyNoteSavingIndicator />}
-        </NoteCardContent>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <NoteCardHeader {...attributes} {...listeners}>
+            <MessageSquare size={16} className="text-blue-500" />
+            <Label className="grow">Free form</Label>
+            <BibleStudyNoteDeleteButton noteId={note.id} />
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </Button>
+            </CollapsibleTrigger>
+          </NoteCardHeader>
+          <CollapsibleContent>
+            <NoteCardContent>
+              <BibleStudyNoteEditor
+                value={commentary}
+                onChange={(value) => setCommentary(value)}
+              />
+              {isLoading && <BibleStudyNoteSavingIndicator />}
+            </NoteCardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </NoteCard>
     </div>
   );

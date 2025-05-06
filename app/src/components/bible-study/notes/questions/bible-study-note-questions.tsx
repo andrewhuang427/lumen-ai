@@ -303,7 +303,7 @@ function QuestionsNoteHeader({
           <>
             <Button
               size="sm"
-              variant="secondary"
+              variant="ghost"
               className="h-8 gap-1 text-xs"
               onClick={handleGenerateClick}
               disabled={isGeneratingQuestions}
@@ -344,7 +344,7 @@ function QuestionsNoteHeader({
 
         <BibleStudyNoteDeleteButton noteId={noteId} />
         <CollapsibleTrigger asChild>
-          <Button variant="secondary" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
             {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </Button>
         </CollapsibleTrigger>

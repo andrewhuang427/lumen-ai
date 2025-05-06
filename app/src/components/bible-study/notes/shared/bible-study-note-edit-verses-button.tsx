@@ -79,7 +79,7 @@ export default function BibleStudyNoteEditVersesButton({
       <DialogTrigger asChild>
         <Button
           size="icon"
-          variant="secondary"
+          variant="ghost"
           onClick={handleOpen}
           className="h-8 w-8"
           {...buttonProps}

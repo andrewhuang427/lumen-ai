@@ -31,7 +31,7 @@ export default function BibleStudyNotesPanel() {
       />
       <div
         ref={scrollableRef}
-        className="flex w-full flex-1 flex-col gap-6 overflow-y-auto p-6"
+        className="flex w-full flex-1 flex-col gap-4 overflow-y-auto p-6"
       >
         {isLoading ? (
           <>

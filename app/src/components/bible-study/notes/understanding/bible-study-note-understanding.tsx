@@ -111,7 +111,7 @@ export default function BibleStudyNoteUnderstanding({ note }: Props) {
               />
               <BibleStudyNoteDeleteButton noteId={note.id} />
               <CollapsibleTrigger asChild>
-                <Button variant="secondary" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
                   {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </Button>
               </CollapsibleTrigger>

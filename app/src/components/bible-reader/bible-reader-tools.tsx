@@ -57,7 +57,7 @@ export default function BibleReaderTools() {
   return (
     <>
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-8">
-        <div className="flex items-center gap-1 rounded-full border bg-muted py-2 pl-4 pr-2 shadow">
+        <div className="flex items-center gap-1 rounded-full border bg-muted p-2 shadow">
           {hasPreviousChapter && (
             <Button
               variant="ghost"

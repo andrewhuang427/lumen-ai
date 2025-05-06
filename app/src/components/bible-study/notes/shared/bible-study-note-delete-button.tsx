@@ -34,7 +34,7 @@ export default function BibleStudyNoteDeleteButton({ noteId }: Props) {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button
-          variant="destructive"
+          variant="outline"
           size="icon"
           className="h-8 w-8"
           onClick={() => setOpen(true)}

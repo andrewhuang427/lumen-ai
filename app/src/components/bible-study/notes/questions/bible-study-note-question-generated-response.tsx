@@ -82,7 +82,7 @@ export function BibleStudyNoteQuestionGeneratedResponse({
             onClick={handleGenerateResponse}
             disabled={isGenerating || isGeneratingResponse}
           >
-            <SquareLogo size={20} />
+            <SquareLogo size={20} shouldLink={false} />
             What does Lumen think?
           </Button>
         </div>
