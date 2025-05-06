@@ -225,6 +225,9 @@ model User {
     study_streak     UserStudyStreak?
     study_activities UserStudyActivity[]
 
+    // Daily prayers
+    daily_prayers UserDailyPrayer[]
+
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
@@ -309,4 +312,19 @@ model UserStudyActivity {
 
     @@index([user_id, activity_date])
     @@index([user_id, activity_type])
+}
+
+model UserDailyPrayer {
+    id          String  @id @default(uuid())
+    prayer_text String // Plain text or HTML representation
+    prayer_json Json? // Tiptap editor state
+    is_private  Boolean @default(true)
+
+    user_id String
+    user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id])
 }
