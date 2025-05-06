@@ -1,6 +1,10 @@
 import { FollowStatus } from "@prisma/client";
 import { z } from "zod";
-import { UserPreferencesService } from "../../services/user-preferences-service";
+import {
+  CreateDailyPrayerInputSchema,
+  UpdateDailyPrayerInputSchema,
+  UserPreferencesService,
+} from "../../services/user-preferences-service";
 import {
   followRequestActionSchema,
   UserService,
@@ -125,5 +129,21 @@ export const userRouter = createTRPCRouter({
         ctx.user.id,
         input.versionId,
       );
+    }),
+  getDailyPrayers: authenticatedProcedure.query(({ ctx }) => {
+    return UserPreferencesService.getDailyPrayers(ctx);
+  }),
+  getTodaysDailyPrayer: authenticatedProcedure.query(({ ctx }) => {
+    return UserPreferencesService.getTodaysDailyPrayer(ctx);
+  }),
+  createDailyPrayer: authenticatedProcedure
+    .input(CreateDailyPrayerInputSchema)
+    .mutation(({ ctx, input }) => {
+      return UserPreferencesService.createDailyPrayer(ctx, input);
+    }),
+  updateDailyPrayer: authenticatedProcedure
+    .input(UpdateDailyPrayerInputSchema)
+    .mutation(({ ctx, input }) => {
+      return UserPreferencesService.updateDailyPrayer(ctx, input);
     }),
 });

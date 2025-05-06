@@ -4,6 +4,7 @@ import {
   type BibleStudySession,
   type ChatThread,
   FollowStatus,
+  type UserDailyPrayer,
 } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { type Context } from "../context";
@@ -132,10 +133,35 @@ async function validateUserIsFollowing(
   }
 }
 
+async function validateDailyPrayerBelongsToUser(
+  ctx: Context,
+  prayerId: string,
+): Promise<UserDailyPrayer> {
+  if (ctx.user == null) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not authenticated",
+    });
+  }
+
+  const prayer = await ctx.db.userDailyPrayer.findUnique({
+    where: { id: prayerId },
+  });
+  if (prayer == null || prayer.user_id !== ctx.user.id) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Daily prayer does not belong to user",
+    });
+  }
+
+  return prayer;
+}
+
 export const PermissionsService = {
   validateBibleStudySessionBelongsToUser,
   validatePostBelongsToUser,
   validateNoteBelongsToUser,
   validateChatThreadBelongsToUser,
   validateUserIsFollowing,
+  validateDailyPrayerBelongsToUser,
 };

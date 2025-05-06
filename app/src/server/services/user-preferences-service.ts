@@ -2,12 +2,17 @@ import {
   type BibleBook,
   type BibleChapter,
   type BibleVersion,
+  type UserDailyPrayer,
 } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
+import { endOfDay, isWithinInterval, startOfDay } from "date-fns";
+import { z } from "zod";
 import { type Context } from "../context";
 import {
   validateBibleVersion,
   validateReadingLocation,
 } from "../utils/bible-validation-utils";
+import { PermissionsService } from "./permissions-service";
 
 export type ReadingLocation = {
   version: BibleVersion | null;
@@ -168,9 +173,116 @@ async function getFirstGenesisChapter(
   };
 }
 
+async function getDailyPrayers(context: Context): Promise<UserDailyPrayer[]> {
+  const userId = context.user?.id;
+  if (userId == null) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not authenticated",
+    });
+  }
+
+  const user = await context.db.user.findUnique({
+    where: { id: userId },
+    include: { daily_prayers: true },
+  });
+
+  return user?.daily_prayers ?? [];
+}
+
+async function getTodaysDailyPrayer(
+  context: Context,
+): Promise<UserDailyPrayer | null> {
+  const userId = context.user?.id;
+  if (userId == null) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not authenticated",
+    });
+  }
+
+  const user = await context.db.user.findUnique({
+    where: { id: userId },
+    include: { daily_prayers: true },
+  });
+
+  const dailyPrayers = user?.daily_prayers ?? [];
+
+  const dailyPrayer =
+    dailyPrayers.find((p) => {
+      const now = new Date();
+      const prayerDate = new Date(p.created_at);
+      return isWithinInterval(prayerDate, {
+        start: startOfDay(now),
+        end: endOfDay(now),
+      });
+    }) ?? null;
+
+  return dailyPrayer;
+}
+
+export const CreateDailyPrayerInputSchema = z.object({
+  prayerText: z.string(),
+  prayerJson: z.object({}).passthrough().optional(),
+});
+
+export type CreateDailyPrayerInput = z.infer<
+  typeof CreateDailyPrayerInputSchema
+>;
+
+async function createDailyPrayer(
+  context: Context,
+  input: CreateDailyPrayerInput,
+): Promise<UserDailyPrayer> {
+  const userId = context.user?.id;
+  if (userId == null) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "User is not authenticated",
+    });
+  }
+
+  return await context.db.userDailyPrayer.create({
+    data: {
+      user_id: userId,
+      prayer_text: input.prayerText,
+      prayer_json: input.prayerJson,
+    },
+  });
+}
+
+export const UpdateDailyPrayerInputSchema = z.object({
+  prayerId: z.string(),
+  prayerText: z.string(),
+  prayerJson: z.object({}).passthrough().optional(),
+});
+
+export type UpdateDailyPrayerInput = z.infer<
+  typeof UpdateDailyPrayerInputSchema
+>;
+
+async function updateDailyPrayer(
+  context: Context,
+  input: UpdateDailyPrayerInput,
+): Promise<UserDailyPrayer> {
+  await PermissionsService.validateDailyPrayerBelongsToUser(
+    context,
+    input.prayerId,
+  );
+
+  return await context.db.userDailyPrayer.update({
+    where: { id: input.prayerId },
+    data: { prayer_text: input.prayerText, prayer_json: input.prayerJson },
+  });
+}
+
 export const UserPreferencesService = {
   getReadingLocation,
   updateReadingLocation,
   clearReadingLocation,
   updatePreferredBibleVersion,
+  getDailyPrayers,
+  getTodaysDailyPrayer,
+  createDailyPrayer,
+  updateDailyPrayer,
 };
