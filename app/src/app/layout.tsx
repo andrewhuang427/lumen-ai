@@ -14,6 +14,7 @@ import { ThemeProvider } from "../components/theme/theme-provider";
 import { Toaster } from "../components/ui/toaster";
 import { getAuthenticatedSession } from "../server/utils/auth";
 import { api } from "../trpc/server";
+import DailyPrayer from "../components/daily-prayer/daily-prayer";
 
 export const metadata: Metadata = {
   title: "Lumen",
@@ -59,6 +60,7 @@ export default async function RootLayout({
                       <AppProgressBar />
                       <SpeedInsights />
                       {children}
+                      <DailyPrayer />
                       <Toaster />
                     </AppSidebarLayout>
                   </ModelContextProvider>
