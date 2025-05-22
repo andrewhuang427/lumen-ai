@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, Quote, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "../../hooks/use-mobile";
+import { usePulseAnimation } from "../../hooks/use-pulse-animation";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { getVerseId } from "../utils/bible-utils";
@@ -14,14 +15,14 @@ import {
   type VersesPosition,
 } from "../utils/tooltip-positioning";
 import BibleStudySplitVersesDialog from "./bible-study-split-verses-dialog";
+import { mergeVerses } from "./bible-study-utils";
 import BibleStudyVerseIndicator, {
   getPulseAnimationClass,
 } from "./bible-study-verse-indicator";
-import { mergeVerses } from "./bible-study-utils";
 import { useBibleStudyContentScrollableContext } from "./context/use-bible-study-content-scrollable-context";
 import useBibleStudyContext from "./context/use-bible-study-context";
 import { useBibleStudyVerseNotes } from "./hooks/use-bible-study-verse-notes";
-import { usePulseAnimation } from "../../hooks/use-pulse-animation";
+import BibleStudyShareQuoteDialog from "./share/bible-study-share-quote-dialog";
 
 export default function BibleStudySelectedVersesTooltip() {
   const [isSplitVersesDialogOpen, setIsSplitVersesDialogOpen] = useState(false);
@@ -179,6 +180,7 @@ export default function BibleStudySelectedVersesTooltip() {
                   <Lightbulb size={16} className="text-yellow-500" />
                   {!isMobile && "Understand"}
                 </Button>
+                <BibleStudyShareQuoteDialog />
                 <Button
                   size="sm"
                   variant="ghost"
