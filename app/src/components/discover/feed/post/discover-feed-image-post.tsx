@@ -34,8 +34,8 @@ export default function DiscoverFeedImagePost({ post }: Props) {
         />
       </div>
       <DiscoverFeedCardFooter>
-        <DiscoverPostLikeButton post={post} />
         <DiscoverPostUser post={post} />
+        <DiscoverPostLikeButton post={post} />
       </DiscoverFeedCardFooter>
     </DiscoverFeedCardContainer>
   );

@@ -1,5 +1,7 @@
-import Link from "next/link";
+import { ArrowRightIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { type EnrichedBibleStudyPost } from "../../../../server/services/discover-feed-service";
+import { Button } from "../../../ui/button";
 import DiscoverPostLikeButton from "../../discover-post-like-button";
 import { getPostChapterRange } from "../../reader/discover-reader-utils";
 import {
@@ -17,17 +19,20 @@ type Props = {
 };
 
 export default function DiscoverFeedTextPost({ post }: Props) {
+  const router = useRouter();
+
+  function handleReadPost() {
+    router.push(`/discover/${post.id}`);
+  }
+
   return (
-    <DiscoverFeedCardContainer>
+    <DiscoverFeedCardContainer
+      onClick={handleReadPost}
+      className="ease-[cubic-bezier(0.22,1,0.36,1)] transition-all duration-500 hover:scale-[1.025] hover:border-primary hover:shadow-lg"
+    >
       <DiscoverFeedCardHeader>
         <div className="flex items-center justify-between gap-2">
-          <Link
-            key={post.id}
-            href={`/discover/${post.id}`}
-            className="hover:underline"
-          >
-            <DiscoverFeedCardTitle>{post.title}</DiscoverFeedCardTitle>
-          </Link>
+          <DiscoverFeedCardTitle>{post.title}</DiscoverFeedCardTitle>
           <DiscoverFeedCardChip>
             {getPostChapterRange(post)}
           </DiscoverFeedCardChip>
@@ -38,8 +43,14 @@ export default function DiscoverFeedTextPost({ post }: Props) {
       </DiscoverFeedCardHeader>
 
       <DiscoverFeedCardFooter className="mt-8">
-        <DiscoverPostLikeButton post={post} />
         <DiscoverPostUser post={post} />
+        <div className="flex items-center gap-2">
+          <DiscoverPostLikeButton post={post} />
+          <Button variant="outline" onClick={handleReadPost}>
+            Read post
+            <ArrowRightIcon />
+          </Button>
+        </div>
       </DiscoverFeedCardFooter>
     </DiscoverFeedCardContainer>
   );

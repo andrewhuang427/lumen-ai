@@ -3,8 +3,10 @@ import { cn } from "../../../lib/utils";
 
 function DiscoverFeedCardContainer({
   children,
+  className,
   onClick,
 }: PropsWithChildren<{
+  className?: string;
   onClick?: () => void;
 }>) {
   return (
@@ -12,6 +14,7 @@ function DiscoverFeedCardContainer({
       className={cn(
         "flex flex-col gap-4 rounded-lg border bg-muted p-6",
         onClick && "cursor-pointer",
+        className,
       )}
       onClick={onClick}
     >
