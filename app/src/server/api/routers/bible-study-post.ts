@@ -33,10 +33,10 @@ export const bibleStudyPostRouter = createTRPCRouter({
     .mutation(({ ctx, input }) => {
       return BibleStudyPostService.deletePost(ctx, input.postId);
     }),
-  getPost: authenticatedProcedure
+  getTextPost: authenticatedProcedure
     .input(z.object({ sessionId: z.string() }))
     .query(({ ctx, input }) => {
-      return BibleStudyPostService.getPost(ctx, input.sessionId);
+      return BibleStudyPostService.getTextPost(ctx, input.sessionId);
     }),
   getUserPosts: authenticatedProcedure
     .input(z.object({ userId: z.string() }))

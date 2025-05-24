@@ -155,12 +155,12 @@ async function deletePost(
   });
 }
 
-async function getPost(
+async function getTextPost(
   ctx: Context,
   sessionId: string,
 ): Promise<BibleStudyPost | null> {
   return await ctx.db.bibleStudyPost.findFirst({
-    where: { session_id: sessionId },
+    where: { session_id: sessionId, type: BibleStudyPostType.TEXT },
   });
 }
 
@@ -179,6 +179,6 @@ export const BibleStudyPostService = {
   summarizeSession,
   updatePost,
   deletePost,
-  getPost,
+  getTextPost,
   getUserPosts,
 };

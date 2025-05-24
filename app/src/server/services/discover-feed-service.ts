@@ -2,6 +2,7 @@ import {
   type BibleBook,
   type BibleChapter,
   type BibleStudyPost,
+  type BibleStudyPostImage,
   type BibleStudyPostLike,
   BibleStudyPostStatus,
   FollowStatus,
@@ -21,6 +22,7 @@ export type EnrichedBibleStudyPost = BibleStudyPost & {
     start_chapter: BibleChapter;
     end_chapter: BibleChapter | null;
   };
+  images: BibleStudyPostImage[];
   likes: BibleStudyPostLike[];
 };
 
@@ -62,6 +64,7 @@ async function getFeed(
     include: {
       user: true,
       likes: true,
+      images: true,
       session: {
         select: {
           book: true,
@@ -102,6 +105,7 @@ async function getPost(
     where: { id: postId },
     include: {
       user: true,
+      images: true,
       likes: true,
       session: {
         include: {

@@ -13,7 +13,7 @@ export default function BibleStudyPublishDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: post, isLoading: isLoadingPost } =
-    api.bibleStudyPost.getPost.useQuery(
+    api.bibleStudyPost.getTextPost.useQuery(
       { sessionId: session?.id ?? "" },
       { enabled: session != null },
     );
