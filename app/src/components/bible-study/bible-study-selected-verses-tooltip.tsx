@@ -180,7 +180,12 @@ export default function BibleStudySelectedVersesTooltip() {
                   <Lightbulb size={16} className="text-yellow-500" />
                   {!isMobile && "Understand"}
                 </Button>
-                <BibleStudyShareQuoteDialog />
+                <BibleStudyShareQuoteDialog
+                  book={book}
+                  chapters={chapters}
+                  mergedVerses={mergedVerses}
+                  quote={selectedVerses.map((v) => v.text.trim()).join(" ")}
+                />
                 <Button
                   size="sm"
                   variant="ghost"
