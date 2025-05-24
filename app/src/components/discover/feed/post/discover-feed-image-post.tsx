@@ -9,10 +9,9 @@ import DiscoverPostUser from "../discover-post-user";
 
 type Props = {
   post: EnrichedBibleStudyPost;
-  index: number;
 };
 
-export default function DiscoverFeedImagePost({ post, index }: Props) {
+export default function DiscoverFeedImagePost({ post }: Props) {
   const image = useMemo(() => {
     if (post.images.length === 0) {
       return null;
@@ -25,7 +24,7 @@ export default function DiscoverFeedImagePost({ post, index }: Props) {
   }
 
   return (
-    <DiscoverFeedCardContainer border={index > 0}>
+    <DiscoverFeedCardContainer>
       <div className="relative w-full overflow-hidden rounded-lg">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

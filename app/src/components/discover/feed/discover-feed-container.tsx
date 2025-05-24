@@ -48,9 +48,7 @@ export default function DiscoverFeedContainer({
       ref={scrollableDivRef}
       className="flex flex-1 flex-col overflow-y-auto"
     >
-      <div className="mx-auto w-full max-w-3xl flex-1 p-4 md:my-8">
-        {children}
-      </div>
+      <div className="mx-auto w-full flex-1 p-4 md:my-8">{children}</div>
     </div>
   );
 }

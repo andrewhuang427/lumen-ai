@@ -3,17 +3,14 @@ import { cn } from "../../../lib/utils";
 
 function DiscoverFeedCardContainer({
   children,
-  border,
   onClick,
 }: PropsWithChildren<{
-  border?: boolean;
   onClick?: () => void;
 }>) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 p-6",
-        border && "border-t",
+        "flex flex-col gap-4 rounded-lg border bg-muted p-6",
         onClick && "cursor-pointer",
       )}
       onClick={onClick}

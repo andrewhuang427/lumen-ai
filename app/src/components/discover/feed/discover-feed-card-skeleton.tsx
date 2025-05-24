@@ -1,16 +1,9 @@
-import { cn } from "../../../lib/utils";
-
 import { Skeleton } from "../../ui/skeleton";
+import { DiscoverFeedCardContainer } from "./discover-feed-card-components";
 
-type Props = {
-  border?: boolean;
-};
-
-export default function DiscoverFeedCardSkeleton({ border = true }: Props) {
+export default function DiscoverFeedCardSkeleton() {
   return (
-    <div
-      className={cn("flex flex-col justify-between p-6", border && "border-t")}
-    >
+    <DiscoverFeedCardContainer>
       <div className="flex items-center">
         <div className="flex grow flex-col gap-2">
           <Skeleton className="h-8 w-full max-w-48" />
@@ -28,6 +21,6 @@ export default function DiscoverFeedCardSkeleton({ border = true }: Props) {
           <Skeleton className="h-8 w-24" />
         </div>
       </div>
-    </div>
+    </DiscoverFeedCardContainer>
   );
 }

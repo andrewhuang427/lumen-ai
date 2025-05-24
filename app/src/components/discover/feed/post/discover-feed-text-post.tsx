@@ -14,12 +14,11 @@ import DiscoverPostUser from "../discover-post-user";
 
 type Props = {
   post: EnrichedBibleStudyPost;
-  index: number;
 };
 
-export default function DiscoverFeedTextPost({ post, index }: Props) {
+export default function DiscoverFeedTextPost({ post }: Props) {
   return (
-    <DiscoverFeedCardContainer border={index > 0}>
+    <DiscoverFeedCardContainer>
       <DiscoverFeedCardHeader>
         <div className="flex items-center justify-between gap-2">
           <Link

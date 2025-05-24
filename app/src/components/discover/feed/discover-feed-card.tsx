@@ -5,14 +5,13 @@ import DiscoverFeedTextPost from "./post/discover-feed-text-post";
 
 type Props = {
   post: EnrichedBibleStudyPost;
-  index: number;
 };
 
-export default function DiscoverFeedCard({ post, index }: Props) {
+export default function DiscoverFeedCard({ post }: Props) {
   switch (post.type) {
     case BibleStudyPostType.TEXT:
-      return <DiscoverFeedTextPost post={post} index={index} />;
+      return <DiscoverFeedTextPost post={post} />;
     case BibleStudyPostType.IMAGE:
-      return <DiscoverFeedImagePost post={post} index={index} />;
+      return <DiscoverFeedImagePost post={post} />;
   }
 }
