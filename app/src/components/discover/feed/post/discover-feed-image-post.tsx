@@ -5,6 +5,7 @@ import {
   DiscoverFeedCardContainer,
   DiscoverFeedCardFooter,
 } from "../discover-feed-card-components";
+import DiscoverPostUser from "../discover-post-user";
 
 type Props = {
   post: EnrichedBibleStudyPost;
@@ -35,6 +36,7 @@ export default function DiscoverFeedImagePost({ post, index }: Props) {
       </div>
       <DiscoverFeedCardFooter>
         <DiscoverPostLikeButton post={post} />
+        <DiscoverPostUser post={post} />
       </DiscoverFeedCardFooter>
     </DiscoverFeedCardContainer>
   );

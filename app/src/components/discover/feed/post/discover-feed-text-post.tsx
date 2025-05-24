@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { type EnrichedBibleStudyPost } from "../../../../server/services/discover-feed-service";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../ui/avatar";
 import DiscoverPostLikeButton from "../../discover-post-like-button";
 import { getPostChapterRange } from "../../reader/discover-reader-utils";
 import {
@@ -11,6 +10,7 @@ import {
   DiscoverFeedCardHeader,
   DiscoverFeedCardTitle,
 } from "../discover-feed-card-components";
+import DiscoverPostUser from "../discover-post-user";
 
 type Props = {
   post: EnrichedBibleStudyPost;
@@ -40,27 +40,7 @@ export default function DiscoverFeedTextPost({ post, index }: Props) {
 
       <DiscoverFeedCardFooter className="mt-8">
         <DiscoverPostLikeButton post={post} />
-        <div className="flex items-center gap-2.5">
-          <Avatar className="size-8">
-            <AvatarImage src={post.user.avatar_url ?? undefined} />
-            <AvatarFallback>{post.user.name[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col gap-0.5">
-            <Link
-              href={`/@${post.user.username}`}
-              className="cursor-pointer text-sm font-medium hover:underline"
-            >
-              {post.user.name}
-            </Link>
-            <span className="text-xs text-muted-foreground">
-              {post.created_at.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-        </div>
+        <DiscoverPostUser post={post} />
       </DiscoverFeedCardFooter>
     </DiscoverFeedCardContainer>
   );
