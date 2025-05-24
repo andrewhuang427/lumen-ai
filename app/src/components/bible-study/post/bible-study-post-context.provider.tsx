@@ -26,7 +26,7 @@ export default function BibleStudyPostContextProvider({ children }: Props) {
   const { session } = useBibleStudyContext();
 
   const { data: post, isLoading: isLoadingPost } =
-    api.bibleStudyPost.getPost.useQuery(
+    api.bibleStudyPost.getTextPost.useQuery(
       { sessionId: session?.id ?? "" },
       { enabled: session != null },
     );

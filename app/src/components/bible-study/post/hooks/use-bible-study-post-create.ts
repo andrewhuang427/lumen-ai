@@ -17,7 +17,7 @@ export default function useBibleStudyPostCreate() {
       const newPost = await createPostMutation(input);
 
       // 2. update post in local cache
-      utils.bibleStudyPost.getPost.setData(
+      utils.bibleStudyPost.getTextPost.setData(
         { sessionId: input.sessionId },
         newPost,
       );

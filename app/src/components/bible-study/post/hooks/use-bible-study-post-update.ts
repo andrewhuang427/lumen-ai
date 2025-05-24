@@ -14,7 +14,7 @@ export default function useBibleStudyPostUpdate() {
       const updatedPost = await updatePostMutation(input);
 
       // 2. update post in local cache
-      utils.bibleStudyPost.getPost.setData(
+      utils.bibleStudyPost.getTextPost.setData(
         { sessionId: updatedPost.session_id },
         updatedPost,
       );
