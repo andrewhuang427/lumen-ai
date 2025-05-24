@@ -1,7 +1,19 @@
+import { useState } from "react";
+import { useEffect } from "react";
 import { Skeleton } from "../../ui/skeleton";
 import { DiscoverFeedCardContainer } from "./discover-feed-card-components";
 
 export default function DiscoverFeedCardSkeleton() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <DiscoverFeedCardContainer>
       <div className="flex items-center">
@@ -11,6 +23,7 @@ export default function DiscoverFeedCardSkeleton() {
         </div>
         <Skeleton className="h-8 w-16" />
       </div>
+      <div className={getRandomHeight()} />
       <div className="mt-8 flex items-center justify-between">
         <div className="flex grow items-center gap-2">
           <Skeleton className="h-8 w-16" />
@@ -23,4 +36,9 @@ export default function DiscoverFeedCardSkeleton() {
       </div>
     </DiscoverFeedCardContainer>
   );
+}
+
+const heights = ["h-8", "h-16", "h-24", "h-32"];
+function getRandomHeight() {
+  return heights[Math.floor(Math.random() * heights.length)];
 }

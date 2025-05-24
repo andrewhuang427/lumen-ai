@@ -9,6 +9,8 @@ import DiscoverFeedCardSkeleton from "./discover-feed-card-skeleton";
 import DiscoverFeedContainer from "./discover-feed-container";
 import DiscoverEmptyFeed from "./discover-feed-empty-state";
 
+const MASONRY_BREAKPOINTS = { default: 3, 1100: 2, 700: 1 };
+
 export default function DiscoverFeed() {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     api.discover.getFeed.useInfiniteQuery(
@@ -26,7 +28,7 @@ export default function DiscoverFeed() {
         <DiscoverEmptyFeed />
       ) : (
         <Masonry
-          breakpointCols={{ default: 3, 1100: 2, 700: 1 }}
+          breakpointCols={MASONRY_BREAKPOINTS}
           className="discover-masonry-grid"
           columnClassName="discover-masonry-grid_column"
         >
@@ -34,9 +36,9 @@ export default function DiscoverFeed() {
             <DiscoverFeedCard key={post.id} post={post} />
           ))}
           {(isLoading || isFetchingNextPage) &&
-            Array.from({ length: 10 }).map((_, i) => {
-              return <DiscoverFeedCardSkeleton key={i} />;
-            })}
+            Array.from({ length: 10 }).map((_, i) => (
+              <DiscoverFeedCardSkeleton key={i} />
+            ))}
         </Masonry>
       )}
       <InfiniteScrollTrigger
