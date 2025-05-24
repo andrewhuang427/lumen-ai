@@ -12,6 +12,7 @@ export type BibleStudyContextType = {
   chapters: BibleChapterWithSections[];
   notes: TypedBibleStudyNote[];
   selectedVerses: BibleVerse[];
+  mergedVerses: BibleVerse[][];
   isLoadingNotes: boolean;
   setSelectedVerses: Dispatch<SetStateAction<BibleVerse[]>>;
 };
@@ -22,6 +23,7 @@ export const BibleStudyContext = createContext<BibleStudyContextType>({
   chapters: [],
   notes: [],
   selectedVerses: [],
+  mergedVerses: [],
   isLoadingNotes: false,
   setSelectedVerses: () => {},
 });

@@ -1,4 +1,4 @@
-import { BibleStudyPostStatus, BibleStudyPostType } from "@prisma/client";
+import { BibleStudyPostStatus } from "@prisma/client";
 import { Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../../trpc/react";
@@ -30,7 +30,6 @@ export default function BibleStudyPublishDialog() {
       await createPost({
         title: "",
         description: "",
-        type: BibleStudyPostType.TEXT,
         status: BibleStudyPostStatus.DRAFT,
         contentJson: {},
         contentText: "",

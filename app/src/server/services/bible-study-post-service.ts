@@ -18,30 +18,66 @@ import {
 export const CreatePostInputSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
-  type: z.nativeEnum(BibleStudyPostType),
   status: z.nativeEnum(BibleStudyPostStatus),
   contentJson: z.object({}).passthrough(),
   contentText: z.string(),
   sessionId: z.string(),
-  userId: z.string(),
 });
 
-type CreatePostInput = z.infer<typeof CreatePostInputSchema>;
+export type CreatePostInput = z.infer<typeof CreatePostInputSchema>;
 
 async function createPost(
   ctx: Context,
   input: CreatePostInput,
 ): Promise<BibleStudyPost> {
+  if (ctx.user == null) {
+    throw new Error("User not found");
+  }
+
   return await ctx.db.bibleStudyPost.create({
     data: {
-      type: input.type,
+      type: BibleStudyPostType.TEXT,
       status: input.status,
       title: input.title,
       description: input.description,
       content_json: input.contentJson,
       content_text: input.contentText,
       session_id: input.sessionId,
-      user_id: input.userId,
+      user_id: ctx.user.id,
+    },
+  });
+}
+
+export const CreatePostImageInputSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string(),
+  sessionId: z.string(),
+});
+
+type CreatePostImageInput = z.infer<typeof CreatePostImageInputSchema>;
+
+async function createPostImage(
+  ctx: Context,
+  input: CreatePostImageInput,
+): Promise<BibleStudyPost> {
+  if (ctx.user == null) {
+    throw new Error("User not found");
+  }
+
+  return await ctx.db.bibleStudyPost.create({
+    data: {
+      type: BibleStudyPostType.IMAGE,
+      status: BibleStudyPostStatus.PUBLISHED,
+      title: input.title,
+      description: input.description,
+      session_id: input.sessionId,
+      user_id: ctx.user.id,
+      images: {
+        create: {
+          url: input.imageUrl,
+        },
+      },
     },
   });
 }
@@ -139,6 +175,7 @@ async function getUserPosts(
 
 export const BibleStudyPostService = {
   createPost,
+  createPostImage,
   summarizeSession,
   updatePost,
   deletePost,

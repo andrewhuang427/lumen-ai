@@ -1,12 +1,8 @@
 "use client";
 
-import {
-  type BibleBook,
-  type BibleChapter,
-  type BibleVerse,
-} from "@prisma/client";
-import { Share } from "lucide-react";
+import { Loader2, Share } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -27,38 +23,34 @@ import useBibleStudyShareQuoteCanvas from "./use-bible-study-share-quote-canvas"
 
 export const DEFAULT_OVERLAY_OPACITY = 0.5;
 
-type Props = {
-  book: BibleBook;
-  quote: string;
-  mergedVerses: BibleVerse[][];
-  chapters: BibleChapter[];
-};
-
-export default function BibleStudyShareQuoteDialog({
-  book,
-  quote,
-  mergedVerses,
-  chapters,
-}: Props) {
+export default function BibleStudyShareQuoteDialog() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const {
     canvasRef,
-    selectedFont,
+    font,
     fontSize,
     opacity,
     size,
+    isUploading,
     handleSetImage,
-    setSelectedFont,
+    handlePost,
+    setFont,
     setFontSize,
     setOpacity,
-  } = useBibleStudyShareQuoteCanvas(
-    dialogOpen,
-    book,
-    quote,
-    mergedVerses,
-    chapters,
-  );
+  } = useBibleStudyShareQuoteCanvas(dialogOpen);
+
+  async function postImage() {
+    if (isUploading) {
+      return;
+    }
+    try {
+      await handlePost();
+      setDialogOpen(false);
+    } catch {
+      toast.error("Failed to share quote");
+    }
+  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -79,8 +71,8 @@ export default function BibleStudyShareQuoteDialog({
           <BibleStudyShareQuoteDialogSelectImage onSelect={handleSetImage} />
           <Separator orientation="vertical" />
           <BibleStudyShareQuoteDialogSelectFont
-            font={selectedFont}
-            onSelect={setSelectedFont}
+            font={font}
+            onSelect={setFont}
           />
           <BibleStudyShareQuoteDialogSelectFontSize
             fontSize={fontSize}
@@ -93,7 +85,7 @@ export default function BibleStudyShareQuoteDialog({
         />
         <canvas
           ref={canvasRef}
-          className="block h-auto w-full rounded-lg border"
+          className="block h-auto min-h-64 w-full rounded-lg border"
           width={size?.width ?? 0}
           height={size?.height ?? 0}
         />
@@ -101,7 +93,10 @@ export default function BibleStudyShareQuoteDialog({
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button>Share</Button>
+          <Button disabled={isUploading} onClick={postImage}>
+            {isUploading && <Loader2 className="h-4 w-4 animate-spin" />}
+            Share
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

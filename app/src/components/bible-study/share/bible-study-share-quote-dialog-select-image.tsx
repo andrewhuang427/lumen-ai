@@ -10,8 +10,8 @@ export type ImageOption = {
 };
 
 export const DEFAULT_IMAGE_OPTIONS: ImageOption[] = [
-  { label: "Big Sur", path: bigSur },
   { label: "Field", path: field },
+  { label: "Big Sur", path: bigSur },
   { label: "Forest", path: forest },
   { label: "Solitude", path: solitude },
 ];

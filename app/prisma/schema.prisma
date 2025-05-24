@@ -140,26 +140,38 @@ enum BibleStudyPostStatus {
 }
 
 model BibleStudyPost {
-    id           String               @id @default(uuid())
+    id           String                @id @default(uuid())
     type         BibleStudyPostType
     status       BibleStudyPostStatus
-    title        String
+    title        String?
     description  String?
     content_json Json? // Tiptap editor state
     content_text String? // Plain text or HTML representation
-    session_id   String
-    session      BibleStudySession    @relation(fields: [session_id], references: [id], onDelete: Cascade)
-    user_id      String
-    user         User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
-    likes        BibleStudyPostLike[]
+    images       BibleStudyPostImage[]
+
+    session_id String
+    session    BibleStudySession    @relation(fields: [session_id], references: [id], onDelete: Cascade)
+    user_id    String
+    user       User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    likes      BibleStudyPostLike[]
 
     created_at DateTime @default(now())
     updated_at DateTime @updatedAt
 
-    @@unique([session_id, user_id])
     @@index([session_id])
     @@index([status, created_at])
     @@index([user_id, status, created_at])
+}
+
+model BibleStudyPostImage {
+    id       String         @id @default(uuid())
+    url      String
+    metadata Json?
+    post_id  String
+    post     BibleStudyPost @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
 }
 
 model BibleStudyPostLike {

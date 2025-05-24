@@ -1,31 +1,22 @@
-import { BibleStudyPostStatus, BibleStudyPostType } from "@prisma/client";
 import { z } from "zod";
 import {
   BibleStudyPostService,
+  CreatePostImageInputSchema,
+  CreatePostInputSchema,
   UpdatePostInputSchema,
 } from "../../services/bible-study-post-service";
 import { authenticatedProcedure, createTRPCRouter } from "../trpc";
 
-const createPostInput = z.object({
-  title: z.string(),
-  description: z.string().optional(),
-  type: z.nativeEnum(BibleStudyPostType),
-  status: z.nativeEnum(BibleStudyPostStatus),
-  contentJson: z.object({}).passthrough(),
-  contentText: z.string(),
-  sessionId: z.string(),
-});
-
-export type CreatePostInput = z.infer<typeof createPostInput>;
-
 export const bibleStudyPostRouter = createTRPCRouter({
   createPost: authenticatedProcedure
-    .input(createPostInput)
+    .input(CreatePostInputSchema)
     .mutation(({ ctx, input }) => {
-      return BibleStudyPostService.createPost(ctx, {
-        ...input,
-        userId: ctx.user.id,
-      });
+      return BibleStudyPostService.createPost(ctx, input);
+    }),
+  createPostImage: authenticatedProcedure
+    .input(CreatePostImageInputSchema)
+    .mutation(({ ctx, input }) => {
+      return BibleStudyPostService.createPostImage(ctx, input);
     }),
   summarizeSession: authenticatedProcedure
     .input(z.object({ sessionId: z.string() }))

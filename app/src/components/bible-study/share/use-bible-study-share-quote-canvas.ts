@@ -1,9 +1,14 @@
+"use client";
+
 import {
   type BibleBook,
   type BibleChapter,
   type BibleVerse,
 } from "@prisma/client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { api } from "../../../trpc/react";
+import { useUploadThing } from "../../uploadthing";
+import useBibleStudyContext from "../context/use-bible-study-context";
 import { DEFAULT_OVERLAY_OPACITY } from "./bible-study-share-quote-dialog";
 import { DEFAULT_IMAGE_OPTIONS } from "./bible-study-share-quote-dialog-select-image";
 
@@ -16,20 +21,26 @@ const DEFAULT_FONT = "Georgia";
 const DEFAULT_FONT_SIZE_PERCENT = 0.05;
 const DEFAULT_IMAGE_SIZE: ImageSize = { width: 0, height: 0 };
 
-export default function useBibleStudyShareQuoteCanvas(
-  dialogOpen: boolean,
-  book: BibleBook,
-  quote: string,
-  mergedVerses: BibleVerse[][],
-  chapters: BibleChapter[],
-) {
+export default function useBibleStudyShareQuoteCanvas(dialogOpen: boolean) {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [selectedFont, setSelectedFont] = useState<string>(DEFAULT_FONT);
+  const [font, setFont] = useState<string>(DEFAULT_FONT);
   const [size, setSize] = useState<ImageSize>(DEFAULT_IMAGE_SIZE);
   const [fontSize, setFontSize] = useState<number>(DEFAULT_FONT_SIZE_PERCENT);
   const [opacity, setOpacity] = useState<number>(DEFAULT_OVERLAY_OPACITY);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  const { session, book, chapters, selectedVerses, mergedVerses } =
+    useBibleStudyContext();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const { startUpload } = useUploadThing("imageUploader");
+  const { mutateAsync: createPostImage } =
+    api.bibleStudyPost.createPostImage.useMutation();
+
+  const quote = useMemo(() => {
+    return selectedVerses.map((v) => v.text.trim()).join(" ");
+  }, [selectedVerses]);
 
   const drawCanvas = useCallback(
     (
@@ -41,7 +52,7 @@ export default function useBibleStudyShareQuoteCanvas(
     ) => {
       const canvas = canvasRef.current;
       const ctx = canvas?.getContext("2d");
-      if (!canvas || !ctx || !bg || !size) {
+      if (!canvas || !ctx || !bg || !size || !book || !session) {
         return;
       }
       const imageWidth = size.width;
@@ -83,7 +94,7 @@ export default function useBibleStudyShareQuoteCanvas(
       const referenceText = references.join("  •  ");
       ctx.fillText(referenceText, x, y + referenceLineHeight);
     },
-    [quote, book, chapters, mergedVerses],
+    [session, book, chapters, mergedVerses, quote],
   );
 
   const handleSetImage = useCallback((src: string) => {
@@ -101,11 +112,51 @@ export default function useBibleStudyShareQuoteCanvas(
     };
   }, []);
 
-  useEffect(() => {
-    if (image) {
-      drawCanvas(image, selectedFont, fontSize, opacity, size);
-    }
-  }, [image, selectedFont, fontSize, opacity, size, drawCanvas]);
+  const handlePost = useCallback(() => {
+    const canvas = canvasRef.current;
+    return new Promise((resolve, reject) => {
+      if (canvas == null) {
+        reject(new Error("No canvas"));
+        return;
+      }
+
+      async function handleBlob(blob: Blob) {
+        if (session?.id == null) {
+          return;
+        }
+
+        try {
+          setIsUploading(true);
+          const file = new File([blob], "bible-study-quote.png", {
+            type: "image/png",
+          });
+          const response = await startUpload([file]);
+          const savedFile = response?.[0];
+          if (savedFile == null) {
+            return;
+          }
+          const path = savedFile.ufsUrl;
+          const post = await createPostImage({
+            imageUrl: path,
+            sessionId: session.id,
+          });
+          resolve(post);
+        } catch {
+          reject(new Error("Failed to create post image"));
+        } finally {
+          setIsUploading(false);
+        }
+      }
+
+      canvas.toBlob((blob) => {
+        if (blob == null) {
+          reject(new Error("No blob"));
+          return;
+        }
+        void handleBlob(blob);
+      }, "image/png");
+    });
+  }, [session, startUpload, createPostImage]);
 
   useEffect(() => {
     const firstImage = DEFAULT_IMAGE_OPTIONS[0];
@@ -114,14 +165,22 @@ export default function useBibleStudyShareQuoteCanvas(
     }
   }, [dialogOpen, handleSetImage]);
 
+  useEffect(() => {
+    if (image) {
+      drawCanvas(image, font, fontSize, opacity, size);
+    }
+  }, [image, font, fontSize, opacity, size, drawCanvas]);
+
   return {
     canvasRef,
-    selectedFont,
+    font,
     fontSize,
     opacity,
     size,
+    isUploading,
     handleSetImage,
-    setSelectedFont,
+    handlePost,
+    setFont,
     setFontSize,
     setOpacity,
   };

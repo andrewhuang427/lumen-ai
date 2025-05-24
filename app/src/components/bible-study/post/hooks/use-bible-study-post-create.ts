@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { type CreatePostInput } from "../../../../server/api/routers/bible-study-post";
+import { type CreatePostInput } from "../../../../server/services/bible-study-post-service";
 import { api } from "../../../../trpc/react";
 
 export default function useBibleStudyPostCreate() {

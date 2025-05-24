@@ -3,6 +3,7 @@
 import { type BibleVerse } from "@prisma/client";
 import { type PropsWithChildren, useMemo, useState } from "react";
 import { api } from "../../../trpc/react";
+import { mergeVerses } from "../bible-study-utils";
 import {
   BibleStudyContext,
   type BibleStudyContextType,
@@ -44,6 +45,10 @@ export default function BibleStudyContextProvider({
     return session?.chapters ?? [];
   }, [session?.chapters]);
 
+  const mergedVerses = useMemo(() => {
+    return mergeVerses(selectedVerses, chapters);
+  }, [selectedVerses, chapters]);
+
   const contextValue: BibleStudyContextType = useMemo(
     () => ({
       session: session ?? null,
@@ -51,10 +56,19 @@ export default function BibleStudyContextProvider({
       chapters,
       notes,
       selectedVerses,
+      mergedVerses,
       isLoadingNotes,
       setSelectedVerses,
     }),
-    [session, book, chapters, notes, selectedVerses, isLoadingNotes],
+    [
+      session,
+      book,
+      chapters,
+      notes,
+      selectedVerses,
+      mergedVerses,
+      isLoadingNotes,
+    ],
   );
 
   return (

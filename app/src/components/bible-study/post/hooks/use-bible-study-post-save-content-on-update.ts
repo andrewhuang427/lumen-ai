@@ -1,8 +1,4 @@
-import {
-  BibleStudyPostStatus,
-  BibleStudyPostType,
-  type BibleStudyPost,
-} from "@prisma/client";
+import { BibleStudyPostStatus, type BibleStudyPost } from "@prisma/client";
 import { type MutationStatus } from "@tanstack/react-query";
 import { type Editor } from "@tiptap/react";
 import { debounce } from "lodash";
@@ -31,7 +27,6 @@ export default function useBibleStudyPostSaveContentOnUpdate(
         await createPost({
           contentJson: updatedEditor.getJSON(),
           contentText: updatedEditor.getText(),
-          type: BibleStudyPostType.TEXT,
           status: BibleStudyPostStatus.DRAFT,
           title: session.title,
           sessionId: session.id,

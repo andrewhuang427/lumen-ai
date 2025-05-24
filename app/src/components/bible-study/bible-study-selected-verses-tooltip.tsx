@@ -3,7 +3,7 @@
 import { BibleStudyNoteType } from "@prisma/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Lightbulb, Quote, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsMobile } from "../../hooks/use-mobile";
 import { usePulseAnimation } from "../../hooks/use-pulse-animation";
 import { Badge } from "../ui/badge";
@@ -15,7 +15,6 @@ import {
   type VersesPosition,
 } from "../utils/tooltip-positioning";
 import BibleStudySplitVersesDialog from "./bible-study-split-verses-dialog";
-import { mergeVerses } from "./bible-study-utils";
 import BibleStudyVerseIndicator, {
   getPulseAnimationClass,
 } from "./bible-study-verse-indicator";
@@ -32,7 +31,7 @@ export default function BibleStudySelectedVersesTooltip() {
   const [versesPosition, setVersesPosition] =
     useState<VersesPosition>("visible");
 
-  const { session, book, chapters, selectedVerses, setSelectedVerses } =
+  const { session, book, selectedVerses, mergedVerses, setSelectedVerses } =
     useBibleStudyContext();
   const { createNoteFromVerses, isLoading } = useBibleStudyVerseNotes();
 
@@ -44,11 +43,6 @@ export default function BibleStudySelectedVersesTooltip() {
   const showPulse = usePulseAnimation({
     trigger: !areVersesInView,
   });
-
-  const mergedVerses = useMemo(
-    () => mergeVerses(selectedVerses, chapters),
-    [selectedVerses, chapters],
-  );
 
   useEffect(() => {
     if (selectedVerses.length === 0) {
@@ -180,12 +174,7 @@ export default function BibleStudySelectedVersesTooltip() {
                   <Lightbulb size={16} className="text-yellow-500" />
                   {!isMobile && "Understand"}
                 </Button>
-                <BibleStudyShareQuoteDialog
-                  book={book}
-                  chapters={chapters}
-                  mergedVerses={mergedVerses}
-                  quote={selectedVerses.map((v) => v.text.trim()).join(" ")}
-                />
+                <BibleStudyShareQuoteDialog />
                 <Button
                   size="sm"
                   variant="ghost"
