@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChatThread } from "@prisma/client";
-import { MessageCirclePlus } from "lucide-react";
+import { Loader2, MessageCirclePlus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
+import { useChatStreamStore } from "./chat-stream-store";
 import { groupThreadsByDate } from "./chat-utils";
 
 export default function ChatThreadsSidebar() {
@@ -104,8 +105,11 @@ function ThreadGroup({
 function ThreadItem({ thread }: { thread: ChatThread }) {
   const path = usePathname();
   const router = useRouter();
+  const { isStreaming } = useChatStreamStore();
 
   const isActive = path.includes(`/chat/${thread.id}`);
+  const isStreamingInProgress = isStreaming[thread.id] === true;
+  const isUserAwayFromStreamingThread = !isActive && isStreamingInProgress;
 
   function handlePrefetch() {
     router.prefetch(`/chat/${thread.id}`);
@@ -124,8 +128,11 @@ function ThreadItem({ thread }: { thread: ChatThread }) {
           isActive && "bg-muted font-medium",
         )}
       >
-        <div className="flex flex-col gap-0.5 overflow-hidden">
+        <div className="flex grow items-center gap-2 overflow-hidden">
           <span className="truncate">{thread.title}</span>
+          {isUserAwayFromStreamingThread && (
+            <Loader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+          )}
         </div>
       </div>
     </Link>

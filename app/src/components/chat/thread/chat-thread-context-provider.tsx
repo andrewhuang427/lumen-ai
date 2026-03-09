@@ -1,16 +1,17 @@
 "use client";
 
-import { ChatMessageRole, type ChatMessage } from "@prisma/client";
-import { uniqueId } from "lodash";
+import { ChatMessageRole } from "@prisma/client";
 import {
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
   type PropsWithChildren,
 } from "react";
 import { api } from "../../../trpc/react";
+import { createOptimisticMessage } from "../chat-optimistic-utils";
+import { chatStreamStore, useChatStreamStore } from "../chat-stream-store";
+import useOptimisticChatMessagesUpdate from "../hooks/use-optimistic-chat-messages-update";
 import useModelContext from "../../model/use-model-context";
 import {
   ChatThreadContext,
@@ -21,90 +22,100 @@ export default function ChatThreadContextProvider({
   threadId,
   children,
 }: PropsWithChildren<{ threadId: string }>) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isSendingMessage, setIsSendingMessage] = useState(false);
   const { model, isWebSearchEnabled } = useModelContext();
+  const { optimisticChatMessagesUpdate } = useOptimisticChatMessagesUpdate();
+  const { isStreaming, threadIdToStreamingMessage } = useChatStreamStore();
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const {
-    data: thread = null,
-    isLoading,
-    refetch: refetchThread,
-  } = api.chat.getThread.useQuery(threadId);
+  const { data: thread = null, isLoading } = api.chat.getThread.useQuery(threadId);
 
   const { mutateAsync: sendMessageMutation } =
     api.chat.sendMessage.useMutation();
 
   const utils = api.useUtils();
+  const isSendingMessage = isStreaming[threadId] === true;
+  const streamingMessage = threadIdToStreamingMessage[threadId] ?? "";
 
-  const refetchThreadAndUpdateCache = useCallback(async () => {
-    const { data: updatedThread } = await refetchThread();
-    if (updatedThread != null) {
-      utils.chat.getThreads.setData(undefined, (threads) => {
-        return threads?.map((t) => (t.id === threadId ? updatedThread : t));
-      });
+  const messages = useMemo(() => {
+    const persistedMessages = thread?.messages ?? [];
+
+    if (!isSendingMessage) {
+      return persistedMessages;
     }
-  }, [threadId, utils, refetchThread]);
+
+    return [
+      ...persistedMessages,
+      createOptimisticMessage(
+        ChatMessageRole.ASSISTANT,
+        streamingMessage,
+        threadId,
+        `streaming-${threadId}`,
+      ),
+    ];
+  }, [thread?.messages, isSendingMessage, streamingMessage, threadId]);
 
   const sendMessage = useCallback(
-    async (message?: string) => {
-      if (message != null) {
-        setMessages((prev) => [
-          ...prev,
-          getDummyMessage(ChatMessageRole.USER, message, threadId),
-        ]);
+    async (message: string) => {
+      const trimmedMessage = message.trim();
+      if (trimmedMessage.length === 0) {
+        return;
       }
 
+      await utils.chat.getThread.cancel(threadId);
+      optimisticChatMessagesUpdate(threadId, ChatMessageRole.USER, trimmedMessage);
+      chatStreamStore.startStreaming(threadId);
+
+      let didComplete = false;
       try {
-        setIsSendingMessage(true);
-        let response = "";
-        setMessages((prev) => [
-          ...prev,
-          getDummyMessage(ChatMessageRole.ASSISTANT, response, threadId),
-        ]);
-        requestAnimationFrame(() => {
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        });
         const generator = await sendMessageMutation({
           threadId,
-          message,
+          message: trimmedMessage,
           model: model ?? undefined,
           isWebSearchEnabled,
         });
+
         for await (const chunk of generator) {
-          response += chunk;
-          setMessages((prev) => {
-            return [
-              ...prev.slice(0, -1),
-              getDummyMessage(ChatMessageRole.ASSISTANT, response, threadId),
-            ];
-          });
+          chatStreamStore.appendToken(threadId, chunk);
         }
-        void refetchThreadAndUpdateCache();
+
+        didComplete = true;
       } finally {
-        setIsSendingMessage(false);
+        const assistantContent =
+          chatStreamStore.getState().threadIdToStreamingMessage[threadId] ?? "";
+
+        chatStreamStore.clearStreaming(threadId);
+
+        if (didComplete && assistantContent.length > 0) {
+          optimisticChatMessagesUpdate(
+            threadId,
+            ChatMessageRole.ASSISTANT,
+            assistantContent,
+          );
+        }
+
+        void utils.chat.getThread.invalidate(threadId);
+        void utils.chat.getThreads.invalidate();
       }
     },
     [
-      threadId,
       model,
       isWebSearchEnabled,
+      optimisticChatMessagesUpdate,
       sendMessageMutation,
-      refetchThreadAndUpdateCache,
+      threadId,
+      utils.chat.getThread,
+      utils.chat.getThreads,
     ],
   );
 
-  // update messages state when thread changes
+  const lastMessageContent = messages[messages.length - 1]?.content;
+
   useEffect(() => {
-    if (thread?.messages != null) {
-      setMessages((previousMessages) =>
-        shouldUseIncomingMessages(previousMessages, thread.messages)
-          ? thread.messages
-          : previousMessages,
-      );
-    }
-  }, [thread?.messages]);
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    });
+  }, [messages.length, lastMessageContent]);
 
   const contextValue: ChatThreadContextType = useMemo(
     () => ({
@@ -124,49 +135,4 @@ export default function ChatThreadContextProvider({
       {children}
     </ChatThreadContext.Provider>
   );
-}
-
-function shouldUseIncomingMessages(
-  previousMessages: ChatMessage[],
-  incomingMessages: ChatMessage[],
-) {
-  if (previousMessages.length === 0) {
-    return true;
-  }
-
-  if (incomingMessages.length > previousMessages.length) {
-    return true;
-  }
-
-  if (incomingMessages.length < previousMessages.length) {
-    return false;
-  }
-
-  const previousLastMessage = previousMessages[previousMessages.length - 1];
-  const incomingLastMessage = incomingMessages[incomingMessages.length - 1];
-
-  if (
-    previousLastMessage?.role === ChatMessageRole.ASSISTANT &&
-    incomingLastMessage?.role === ChatMessageRole.ASSISTANT &&
-    incomingLastMessage.content.length < previousLastMessage.content.length
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-function getDummyMessage(
-  role: ChatMessageRole,
-  content: string,
-  threadId: string,
-) {
-  return {
-    id: uniqueId(),
-    role,
-    thread_id: threadId,
-    content,
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
 }

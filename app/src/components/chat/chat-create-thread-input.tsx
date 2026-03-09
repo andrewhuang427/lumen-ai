@@ -1,9 +1,7 @@
 "use client";
 
-import { ChatMessageRole, type ChatMessage, type ChatThread } from "@prisma/client";
 import { Loader2, Send } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
-import { uniqueId } from "lodash";
 import { useRef, useState } from "react";
 import { cn } from "~/lib/utils";
 import { api } from "../../trpc/react";
@@ -14,7 +12,14 @@ import {
   type AutosizeTextAreaRef,
 } from "../ui/autosize-textarea";
 import { Button } from "../ui/button";
+import {
+  createOptimisticMessage,
+  createOptimisticThread,
+} from "./chat-optimistic-utils";
+import { chatStreamStore } from "./chat-stream-store";
 import ChatCreateThreadSuggestedPrompts from "./chat-create-thread-suggested-prompts";
+import useOptimisticChatMessagesUpdate from "./hooks/use-optimistic-chat-messages-update";
+import useOptimisticChatTitleUpdate from "./hooks/use-optimistic-chat-title-update";
 
 export default function ChatCreateThreadInput() {
   const [initialMessage, setInitialMessage] = useState("");
@@ -23,6 +28,8 @@ export default function ChatCreateThreadInput() {
   const textareaRef = useRef<AutosizeTextAreaRef>(null);
   const router = useRouter();
   const { model, isWebSearchEnabled } = useModelContext();
+  const { optimisticChatMessagesUpdate } = useOptimisticChatMessagesUpdate();
+  const { optimisticChatTitleUpdate } = useOptimisticChatTitleUpdate();
 
   const { mutateAsync: createThread } = api.chat.createThread.useMutation();
   const utils = api.useUtils();
@@ -34,6 +41,7 @@ export default function ChatCreateThreadInput() {
     }
 
     setIsLoading(true);
+    let threadId: string | null = null;
     try {
       // 1. optimistically create a new thread
       const dummyThread = {
@@ -55,21 +63,11 @@ export default function ChatCreateThreadInput() {
         isWebSearchEnabled,
       });
 
-      let threadId: string | null = null;
-
       for await (const chunk of generator) {
         if (chunk.type === "new-thread") {
           threadId = chunk.threadId;
 
-          const optimisticThread = getOptimisticThread(chunk.threadId);
-          const optimisticMessages = [
-            getDummyMessage(
-              ChatMessageRole.USER,
-              trimmedInitialMessage,
-              chunk.threadId,
-            ),
-            getDummyMessage(ChatMessageRole.ASSISTANT, "", chunk.threadId),
-          ];
+          const optimisticThread = createOptimisticThread(chunk.threadId);
 
           utils.chat.getThreads.setData(undefined, (threads) => {
             const filtered = threads?.filter((t) => t.id !== dummyThread.id) ?? [];
@@ -78,61 +76,53 @@ export default function ChatCreateThreadInput() {
 
           utils.chat.getThread.setData(chunk.threadId, {
             ...optimisticThread,
-            messages: optimisticMessages,
+            messages: [
+              createOptimisticMessage(
+                "USER",
+                trimmedInitialMessage,
+                chunk.threadId,
+              ),
+            ],
           });
 
-          router.push(`/chat/${chunk.threadId}`);
+          chatStreamStore.startStreaming(chunk.threadId);
+          router.replace(`/chat/${chunk.threadId}`);
           continue;
         }
 
         if (chunk.type === "message" && threadId != null) {
-          const activeThreadId = threadId;
-          utils.chat.getThread.setData(threadId, (existingThread) => {
-            if (!existingThread) {
-              return existingThread;
-            }
-
-            return {
-              ...existingThread,
-              messages: appendAssistantChunk(
-                existingThread.messages,
-                chunk.content,
-                activeThreadId,
-              ),
-            };
-          });
+          chatStreamStore.appendToken(threadId, chunk.content);
           continue;
         }
 
         if (chunk.type === "new-thread-title") {
-          utils.chat.getThreads.setData(undefined, (threads) =>
-            threads?.map((thread) =>
-              thread.id === chunk.threadId
-                ? { ...thread, title: chunk.title }
-                : thread,
-            ) ?? [],
-          );
-
-          utils.chat.getThread.setData(chunk.threadId, (existingThread) => {
-            if (!existingThread) {
-              return existingThread;
-            }
-
-            return {
-              ...existingThread,
-              title: chunk.title,
-            };
-          });
+          optimisticChatTitleUpdate(chunk.threadId, chunk.title);
         }
       }
 
       if (threadId != null) {
+        const assistantContent =
+          chatStreamStore.getState().threadIdToStreamingMessage[threadId] ?? "";
+
+        chatStreamStore.clearStreaming(threadId);
+
+        if (assistantContent.length > 0) {
+          optimisticChatMessagesUpdate(
+            threadId,
+            "ASSISTANT",
+            assistantContent,
+          );
+        }
+
         await Promise.all([
           utils.chat.getThread.invalidate(threadId),
           utils.chat.getThreads.invalidate(),
         ]);
       }
     } catch {
+      if (threadId != null) {
+        chatStreamStore.clearStreaming(threadId);
+      }
       utils.chat.getThreads.setData(undefined, (threads) => {
         return threads?.filter((t) => !t.id.startsWith("optimistic-")) ?? [];
       });
@@ -201,53 +191,4 @@ export default function ChatCreateThreadInput() {
       </div>
     </div>
   );
-}
-
-function getOptimisticThread(threadId: string): ChatThread {
-  return {
-    id: threadId,
-    title: "New Chat",
-    user_id: "optimistic-user",
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
-}
-
-function getDummyMessage(
-  role: ChatMessageRole,
-  content: string,
-  threadId: string,
-): ChatMessage {
-  return {
-    id: uniqueId(),
-    role,
-    thread_id: threadId,
-    content,
-    created_at: new Date(),
-    updated_at: new Date(),
-  };
-}
-
-function appendAssistantChunk(
-  messages: ChatMessage[],
-  chunk: string,
-  threadId: string,
-) {
-  const lastMessage = messages[messages.length - 1];
-
-  if (lastMessage?.role !== ChatMessageRole.ASSISTANT) {
-    return [
-      ...messages,
-      getDummyMessage(ChatMessageRole.ASSISTANT, chunk, threadId),
-    ];
-  }
-
-  return [
-    ...messages.slice(0, -1),
-    {
-      ...lastMessage,
-      content: lastMessage.content + chunk,
-      updated_at: new Date(),
-    },
-  ];
 }
