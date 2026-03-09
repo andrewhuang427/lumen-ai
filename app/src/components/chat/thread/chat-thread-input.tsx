@@ -10,8 +10,13 @@ export default function ChatThreadInput() {
   const { isSendingMessage, onSendMessage } = useChatThreadContext();
 
   async function handleSendMessage() {
+    const trimmedValue = value.trim();
+    if (trimmedValue.length === 0) {
+      return;
+    }
+
     setValue("");
-    await onSendMessage(value);
+    await onSendMessage(trimmedValue);
   }
 
   return (
@@ -35,7 +40,7 @@ export default function ChatThreadInput() {
         <Button
           size="icon"
           variant="outline"
-          disabled={isSendingMessage}
+          disabled={isSendingMessage || value.trim().length === 0}
           onClick={handleSendMessage}
         >
           {isSendingMessage ? (

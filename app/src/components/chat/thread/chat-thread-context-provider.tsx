@@ -26,7 +26,6 @@ export default function ChatThreadContextProvider({
   const { model, isWebSearchEnabled } = useModelContext();
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const didSendInitialMessage = useRef(false);
 
   const {
     data: thread = null,
@@ -99,30 +98,13 @@ export default function ChatThreadContextProvider({
   // update messages state when thread changes
   useEffect(() => {
     if (thread?.messages != null) {
-      setMessages(thread.messages);
+      setMessages((previousMessages) =>
+        shouldUseIncomingMessages(previousMessages, thread.messages)
+          ? thread.messages
+          : previousMessages,
+      );
     }
   }, [thread?.messages]);
-
-  // send initial message to the assistant
-  useEffect(() => {
-    async function handleSendInitialMessage() {
-      if (didSendInitialMessage.current) {
-        return;
-      }
-      didSendInitialMessage.current = true;
-      await sendMessage();
-    }
-
-    const initialMessage = messages[0];
-    if (
-      !isLoading &&
-      messages.length === 1 &&
-      initialMessage != null &&
-      initialMessage.role === ChatMessageRole.USER
-    ) {
-      void handleSendInitialMessage();
-    }
-  }, [messages, isLoading, sendMessage]);
 
   const contextValue: ChatThreadContextType = useMemo(
     () => ({
@@ -142,6 +124,36 @@ export default function ChatThreadContextProvider({
       {children}
     </ChatThreadContext.Provider>
   );
+}
+
+function shouldUseIncomingMessages(
+  previousMessages: ChatMessage[],
+  incomingMessages: ChatMessage[],
+) {
+  if (previousMessages.length === 0) {
+    return true;
+  }
+
+  if (incomingMessages.length > previousMessages.length) {
+    return true;
+  }
+
+  if (incomingMessages.length < previousMessages.length) {
+    return false;
+  }
+
+  const previousLastMessage = previousMessages[previousMessages.length - 1];
+  const incomingLastMessage = incomingMessages[incomingMessages.length - 1];
+
+  if (
+    previousLastMessage?.role === ChatMessageRole.ASSISTANT &&
+    incomingLastMessage?.role === ChatMessageRole.ASSISTANT &&
+    incomingLastMessage.content.length < previousLastMessage.content.length
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 function getDummyMessage(

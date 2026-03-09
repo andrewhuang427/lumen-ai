@@ -8,10 +8,15 @@ export const chatRouter = createTRPCRouter({
     .input(
       z.object({
         initialMessage: z.string(),
+        model: ModelSchema.optional(),
+        isWebSearchEnabled: z.boolean().optional(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      return ChatService.createThread(ctx, input.initialMessage);
+      return ChatService.createThread(ctx, input.initialMessage, {
+        model: input.model,
+        isWebSearchEnabled: input.isWebSearchEnabled,
+      });
     }),
   sendMessage: authenticatedProcedure
     .input(
