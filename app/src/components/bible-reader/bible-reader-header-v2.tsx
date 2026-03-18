@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useIsMobile } from "../../hooks/use-mobile";
 import SelectBibleBook from "../bible/select-bible-book";
 import SelectBibleChapter from "../bible/select-bible-chapter";
 import SelectBibleVersion from "../bible/select-bible-version";
@@ -17,9 +16,6 @@ export default function BibleReaderHeaderV2() {
     selectBook,
     selectChapter,
   } = useBibleReaderContext();
-  const isMobile = useIsMobile();
-
-  const showTitle = selectedBook == null || selectedChapter == null;
 
   return (
     <div className="relative grid w-full shrink-0 grid-cols-3 gap-4 p-4 md:p-6">
@@ -63,11 +59,6 @@ export default function BibleReaderHeaderV2() {
             </motion.div>
           )}
         </div>
-        {!isMobile && showTitle && (
-          <p className="text-sm text-muted-foreground">
-            Select a book and chapter.
-          </p>
-        )}
       </div>
       <div className="flex grow items-center justify-end">
         <BibleReaderHeaderActivityStats />
