@@ -91,9 +91,9 @@ export const userRouter = createTRPCRouter({
         input.requestId,
         input.action,
       );
-    }),
+  }),
   getReadingLocation: publicProcedure.query(({ ctx }) => {
-    return UserPreferencesService.getReadingLocation(ctx, ctx.user?.id);
+    return UserPreferencesService.getReadingLocation(ctx, ctx.supabaseUser?.id);
   }),
   updateReadingLocation: authenticatedProcedure
     .input(

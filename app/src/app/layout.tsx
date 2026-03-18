@@ -29,10 +29,9 @@ export const viewport: Viewport = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [session, user, readingLocation] = await Promise.all([
+  const [session, user] = await Promise.all([
     getAuthenticatedSession(),
     api.user.getAuthenticatedUser(),
-    api.user.getReadingLocation(),
   ]);
 
   return (
@@ -51,9 +50,7 @@ export default async function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <BibleReaderContextProvider
-                  defaultReadingLocation={readingLocation}
-                >
+                <BibleReaderContextProvider>
                   <ModelContextProvider>
                     <AppSidebarLayout>
                       <AppProgressBar />

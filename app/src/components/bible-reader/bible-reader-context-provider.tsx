@@ -5,7 +5,7 @@ import {
   type BibleChapter,
   type BibleVersion,
 } from "@prisma/client";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   type PropsWithChildren,
   useCallback,
@@ -20,34 +20,32 @@ import {
   BibleReaderContext,
   type BibleReaderContextType,
 } from "./bible-reader-context";
-import { type ReadingLocation } from "../../server/services/user-preferences-service";
 
-type Props = PropsWithChildren<{
-  defaultReadingLocation: ReadingLocation;
-}>;
+type Props = PropsWithChildren;
 
 export default function BibleReaderContextProvider({
   children,
-  defaultReadingLocation,
 }: Props) {
-  const [version, setVersion] = useState<BibleVersion | null>(
-    defaultReadingLocation.version,
-  );
-  const [book, setBook] = useState<BibleBook | null>(
-    defaultReadingLocation.book,
-  );
-  const [chapter, setChapter] = useState<BibleChapter | null>(
-    defaultReadingLocation.chapter,
-  );
+  const [version, setVersion] = useState<BibleVersion | null>(null);
+  const [book, setBook] = useState<BibleBook | null>(null);
+  const [chapter, setChapter] = useState<BibleChapter | null>(null);
+  const [searchParamsString, setSearchParamsString] = useState("");
 
   const { user } = useAuth();
   const pathname = usePathname();
-  const params = useSearchParams();
+  const params = useMemo(
+    () => new URLSearchParams(searchParamsString),
+    [searchParamsString],
+  );
   const bookNameParam = params.get("book");
   const chapterNumberParam = params.get("chapter");
 
   const didSetInitialSearchParams = useRef(false);
 
+  const { data: readingLocation } = api.user.getReadingLocation.useQuery(
+    undefined,
+    { enabled: pathname === "/" },
+  );
   const { data: versions = [] } = api.bible.getVersions.useQuery();
   const { data: books = [] } = api.bible.getBooks.useQuery(
     { versionId: version?.id ?? "" },
@@ -68,7 +66,7 @@ export default function BibleReaderContextProvider({
 
   const setSearchParams = useCallback(
     (book: BibleBook, chapter: BibleChapter | null) => {
-      const searchParams = new URLSearchParams(params.toString());
+      const searchParams = new URLSearchParams(searchParamsString);
       searchParams.set("book", book.name);
       if (chapter == null) {
         searchParams.delete("chapter");
@@ -77,9 +75,17 @@ export default function BibleReaderContextProvider({
       }
       const newPath = `${pathname}?${searchParams.toString()}`;
       window.history.replaceState(null, "", newPath);
+      setSearchParamsString(searchParams.toString());
     },
-    [params, pathname],
+    [pathname, searchParamsString],
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    setSearchParamsString(window.location.search.slice(1));
+  }, [pathname]);
 
   const selectBook = useCallback(
     (book: BibleBook) => {
@@ -121,25 +127,35 @@ export default function BibleReaderContextProvider({
     if (
       didSetInitialSearchParams.current ||
       pathname !== "/" ||
-      defaultReadingLocation.book == null ||
-      defaultReadingLocation.chapter == null ||
+      readingLocation?.book == null ||
+      readingLocation.chapter == null ||
       bookNameParam != null ||
       chapterNumberParam != null
     ) {
       return;
     }
     didSetInitialSearchParams.current = true;
-    setSearchParams(
-      defaultReadingLocation.book,
-      defaultReadingLocation.chapter,
-    );
+    setSearchParams(readingLocation.book, readingLocation.chapter);
   }, [
     pathname,
-    defaultReadingLocation,
+    readingLocation,
     bookNameParam,
     chapterNumberParam,
     setSearchParams,
   ]);
+
+  useEffect(() => {
+    if (pathname !== "/" || readingLocation == null) {
+      return;
+    }
+    setVersion((currentVersion) => currentVersion ?? readingLocation.version);
+    if (bookNameParam == null) {
+      setBook((currentBook) => currentBook ?? readingLocation.book);
+    }
+    if (chapterNumberParam == null) {
+      setChapter((currentChapter) => currentChapter ?? readingLocation.chapter);
+    }
+  }, [pathname, readingLocation, bookNameParam, chapterNumberParam]);
 
   // Set the first bible version as the default version if no version is selected
   useEffect(() => {

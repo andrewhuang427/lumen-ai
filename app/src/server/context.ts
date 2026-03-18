@@ -33,19 +33,12 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     supabaseUser = null;
   }
 
-  let user: User | null = null;
-  if (supabaseUser?.id) {
-    user = await db.user.findUnique({
-      where: { id: supabaseUser.id },
-    });
-  }
-
   return {
     db,
     openai,
     stripe,
     supabaseUser,
-    user,
+    user: null,
     ...opts,
   };
 };
