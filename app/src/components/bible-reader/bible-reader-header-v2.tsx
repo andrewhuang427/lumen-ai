@@ -18,7 +18,7 @@ export default function BibleReaderHeaderV2() {
   } = useBibleReaderContext();
 
   return (
-    <div className="relative grid w-full shrink-0 grid-cols-3 gap-4 p-4 md:p-6">
+    <div className="relative grid w-full shrink-0 grid-cols-3 gap-4 p-3 md:p-4">
       <div className="col-span-1" />
       <div className="flex items-center justify-center gap-4">
         <div className="flex items-center gap-2">

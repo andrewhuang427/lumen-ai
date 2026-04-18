@@ -11,7 +11,7 @@ const Header = React.forwardRef<
   <header
     ref={ref}
     className={cn(
-      "flex h-24 shrink-0 items-center justify-between gap-4 px-6",
+      "flex h-20 shrink-0 items-center justify-between gap-4 px-6",
       showBorder && "border-b",
       className,
     )}
@@ -32,7 +32,7 @@ const HeaderLeft = React.forwardRef<
   const component = (
     <div
       ref={ref}
-      className={cn("flex grow flex-col gap-0.5 overflow-hidden", className)}
+      className={cn("flex grow flex-col gap-0 overflow-hidden", className)}
       {...props}
     />
   );

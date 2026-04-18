@@ -18,7 +18,7 @@ export default function BibleReaderContent() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="flex justify-center px-4 pb-12 pt-8 md:pb-24 md:pt-16">
+      <div className="flex justify-center px-4 pb-12 pt-4 md:pb-24 md:pt-8">
         <div className="max-w-2xl">
           {isChapterContentLoading && (
             <div className="flex flex-col items-center justify-center gap-4">

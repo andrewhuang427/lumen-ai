@@ -28,7 +28,7 @@ export default function BibleReaderHeaderActivityStats() {
   }
 
   return (
-    <div className="flex items-center gap-2.5 overflow-x-auto rounded-full border bg-muted py-2 pl-4 pr-4 shadow">
+    <div className="hidden items-center gap-2.5 overflow-x-auto rounded-full border bg-muted py-2 pl-4 pr-4 shadow lg:flex">
       <StreakInfo />
       <Link href={`/@${user.username}`}>
         <Stat
