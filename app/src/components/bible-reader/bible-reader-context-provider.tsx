@@ -26,9 +26,6 @@ type Props = PropsWithChildren;
 export default function BibleReaderContextProvider({
   children,
 }: Props) {
-  const [version, setVersion] = useState<BibleVersion | null>(null);
-  const [book, setBook] = useState<BibleBook | null>(null);
-  const [chapter, setChapter] = useState<BibleChapter | null>(null);
   const [searchParamsString, setSearchParamsString] = useState("");
 
   const { user } = useAuth();
@@ -46,6 +43,10 @@ export default function BibleReaderContextProvider({
     undefined,
     { enabled: pathname === "/" },
   );
+
+  const [version, setVersion] = useState<BibleVersion | null>(readingLocation?.version ?? null);
+  const [book, setBook] = useState<BibleBook | null>(readingLocation?.book ?? null);
+  const [chapter, setChapter] = useState<BibleChapter | null>(readingLocation?.chapter ?? null);
   const { data: versions = [] } = api.bible.getVersions.useQuery();
   const { data: books = [] } = api.bible.getBooks.useQuery(
     { versionId: version?.id ?? "" },
