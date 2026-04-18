@@ -5,6 +5,7 @@ import { bibleStudyPostRouter } from "./routers/bible-study-post";
 import { chatRouter } from "./routers/chat";
 import { discoverFeedRouter } from "./routers/discover-feed";
 import { paymentsRouter } from "./routers/payments";
+import { testimonyRouter } from "./routers/testimony";
 import { userRouter } from "./routers/user";
 import { userActivityRouter } from "./routers/user-activity";
 
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   bibleStudyPost: bibleStudyPostRouter,
   discover: discoverFeedRouter,
   chat: chatRouter,
+  testimony: testimonyRouter,
   user: userRouter,
   userActivity: userActivityRouter,
   payments: paymentsRouter,

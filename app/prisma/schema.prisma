@@ -201,6 +201,21 @@ enum ChatMessageRole {
     ASSISTANT
 }
 
+model Testimony {
+    id           String  @id @default(uuid())
+    title        String
+    content_json Json?
+    content_text String?
+    user_id      String
+    user         User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id])
+    @@index([user_id, updated_at])
+}
+
 model User {
     id           String               @id @default(uuid())
     name         String
@@ -212,6 +227,7 @@ model User {
     posts        BibleStudyPost[]
     liked_posts  BibleStudyPostLike[]
     chat_threads ChatThread[]
+    testimonies  Testimony[]
 
     // Bible preferences
     preferred_bible_version_id String?

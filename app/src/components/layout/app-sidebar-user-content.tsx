@@ -2,6 +2,7 @@
 
 import {
   BookOpen,
+  BookText,
   Check,
   ChevronRight,
   MessageCircle,
@@ -57,6 +58,19 @@ export default function AppSidebarUserContent() {
                   className={`${path.includes("/chat") ? "text-primary" : ""}`}
                 />
                 <span className="truncate">Chat</span>
+              </CustomSidebarMenuButton>
+            </SidebarMenuItem>
+          </Link>
+          <Link href="/testimony" prefetch={true}>
+            <SidebarMenuItem>
+              <CustomSidebarMenuButton
+                tooltip="Testimony"
+                isActive={path.includes("/testimony")}
+              >
+                <BookText
+                  className={`${path.includes("/testimony") ? "text-primary" : ""}`}
+                />
+                <span className="truncate">Testimony</span>
               </CustomSidebarMenuButton>
             </SidebarMenuItem>
           </Link>
