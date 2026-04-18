@@ -17,7 +17,10 @@ export default function BibleReaderContent() {
   }
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-y-auto relative">
+      {/* Scroll fade mask at the top */}
+      <div className="pointer-events-none sticky top-0 z-10 h-8 bg-gradient-to-b from-background to-transparent" />
+
       <div className="flex justify-center px-4 pb-12 pt-4 md:pb-24 md:pt-8">
         <div className="max-w-2xl">
           {isChapterContentLoading && (
