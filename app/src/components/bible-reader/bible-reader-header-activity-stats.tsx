@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowRight, Flame, Info, Loader2 } from "lucide-react";
+import { Flame, Info, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "../../lib/utils";
 import { api } from "../../trpc/react";
 import useAuth from "../auth/use-auth";
-import { Button } from "../ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -29,28 +28,23 @@ export default function BibleReaderHeaderActivityStats() {
   }
 
   return (
-    <div className="flex items-center gap-2.5 overflow-x-auto rounded-full border bg-muted py-2 pl-4 pr-2 shadow">
+    <div className="flex items-center gap-2.5 overflow-x-auto rounded-full border bg-muted py-2 pl-4 pr-4 shadow">
       <StreakInfo />
-      <Stat
-        icon={
-          <Flame
-            size={16}
-            className={cn(
-              "shrink-0 text-muted-foreground",
-              currentStreakDays > 0 ? "text-yellow-500" : "",
-            )}
-          />
-        }
-        label="Study streak"
-        value={currentStreakDays}
-        isLoading={isLoadingStreakInfo}
-      />
-
       <Link href={`/@${user.username}`}>
-        <Button variant="outline" size="sm" className="rounded-full">
-          More stats
-          <ArrowRight size={16} />
-        </Button>
+        <Stat
+          icon={
+            <Flame
+              size={16}
+              className={cn(
+                "shrink-0 text-muted-foreground",
+                currentStreakDays > 0 ? "text-yellow-500" : "",
+              )}
+            />
+          }
+          label="Study streak"
+          value={currentStreakDays}
+          isLoading={isLoadingStreakInfo}
+        />
       </Link>
     </div>
   );
