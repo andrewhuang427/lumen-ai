@@ -1,19 +1,12 @@
 import "~/styles/globals.css";
 
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GeistSans } from "geist/font/sans";
 import { type Metadata, type Viewport } from "next";
+import { Suspense } from "react";
 import { TRPCReactProvider } from "~/trpc/react";
-import AuthContextProvider from "../components/auth/auth-context-provider";
-import BibleReaderContextProvider from "../components/bible-reader/bible-reader-context-provider";
-import AppProgressBar from "../components/layout/app-progress-bar";
-import AppSidebarLayout from "../components/layout/app-sidebar-layout";
-import ModelContextProvider from "../components/model/model-context-provider";
+import AuthenticatedProviders from "./authenticated-providers";
+import RootLoadingScreen from "../components/root-loading-screen";
 import PostHogContextProvider from "../components/posthog/posthog-context-provider";
-import { ThemeProvider } from "../components/theme/theme-provider";
-import { Toaster } from "../components/ui/toaster";
-import { getAuthenticatedSession } from "../server/utils/auth";
-import { api } from "../trpc/server";
 
 export const metadata: Metadata = {
   title: "Lumen",
@@ -26,14 +19,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [session, user] = await Promise.all([
-    getAuthenticatedSession(),
-    api.user.getAuthenticatedUser(),
-  ]);
-
   return (
     <html
       lang="en"
@@ -43,25 +31,9 @@ export default async function RootLayout({
       <body className="m-0 h-dvh w-full overflow-hidden p-0">
         <PostHogContextProvider>
           <TRPCReactProvider>
-            <AuthContextProvider defaultSession={session} defaultUser={user}>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <BibleReaderContextProvider>
-                  <ModelContextProvider>
-                    <AppSidebarLayout>
-                      <AppProgressBar />
-                      <SpeedInsights />
-                      {children}
-                      <Toaster />
-                    </AppSidebarLayout>
-                  </ModelContextProvider>
-                </BibleReaderContextProvider>
-              </ThemeProvider>
-            </AuthContextProvider>
+            <Suspense fallback={<RootLoadingScreen />}>
+              <AuthenticatedProviders>{children}</AuthenticatedProviders>
+            </Suspense>
           </TRPCReactProvider>
         </PostHogContextProvider>
       </body>

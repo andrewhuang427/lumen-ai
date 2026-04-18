@@ -23,6 +23,11 @@ export default function AuthContextProvider({
   const [session, setSession] = useState<Session | null>(defaultSession);
   const [user, setUser] = useState<User | null>(defaultUser);
 
+  // If we received a defaultUser from the server, we consider the user
+  // already resolved. We only show loading state for truly unauthenticated
+  // users while the getOrCreate mutation runs.
+  const [hasInitialUser] = useState(!!defaultUser);
+
   const {
     mutateAsync: getOrCreateAuthenticatedUser,
     isPending: isFetchingAuthenticatedUser,
@@ -78,10 +83,10 @@ export default function AuthContextProvider({
     () => ({
       user,
       session,
-      isLoading: isFetchingAuthenticatedUser,
+      isLoading: !hasInitialUser && isFetchingAuthenticatedUser,
       setUser,
     }),
-    [session, user, isFetchingAuthenticatedUser],
+    [session, user, isFetchingAuthenticatedUser, hasInitialUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
