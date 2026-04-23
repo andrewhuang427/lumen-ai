@@ -4,20 +4,29 @@ import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
 import { type Testimony } from "@prisma/client";
 import { api } from "../../../trpc/react";
+import { useToast } from "../../../hooks/use-toast";
 import { useTestimonyEditor } from "../context/use-testimony-editor-context";
 
 export default function useTestimonyAutoSave(
   testimony: Testimony | null | undefined,
 ): MutationStatus {
   const editor = useTestimonyEditor();
+  const { toast } = useToast();
 
-  const { mutateAsync: createTestimony, status: createStatus } =
-    api.testimony.createTestimony.useMutation();
   const { mutateAsync: updateTestimony, status: updateStatus } =
     api.testimony.updateTestimony.useMutation();
 
   const utils = api.useUtils();
   const pendingSaveRef = useRef(false);
+  const testimonyRef = useRef(testimony);
+  const updateTestimonyRef = useRef(updateTestimony);
+  const utilsRef = useRef(utils);
+
+  useEffect(() => {
+    testimonyRef.current = testimony;
+    updateTestimonyRef.current = updateTestimony;
+    utilsRef.current = utils;
+  }, [testimony, updateTestimony, utils]);
 
   useEffect(() => {
     if (editor == null) {
@@ -29,18 +38,27 @@ export default function useTestimonyAutoSave(
       const contentJson = updatedEditor.getJSON();
       const contentText = updatedEditor.getText();
 
-      if (testimony == null) {
+      const currentTestimony = testimonyRef.current;
+      if (currentTestimony == null) {
         return;
-      } else {
-        const updated = await updateTestimony({
-          testimonyId: testimony.id,
+      }
+
+      try {
+        const updated = await updateTestimonyRef.current({
+          testimonyId: currentTestimony.id,
           contentJson,
           contentText,
         });
-        utils.testimony.getTestimony.setData(
-          { testimonyId: testimony.id },
+        utilsRef.current.testimony.getTestimony.setData(
+          { testimonyId: currentTestimony.id },
           updated,
         );
+      } catch {
+        toast({
+          title: "Failed to save",
+          description: "Your changes could not be saved.",
+          variant: "destructive",
+        });
       }
     }, 1000);
 
@@ -65,7 +83,8 @@ export default function useTestimonyAutoSave(
       handleUpdate.cancel();
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [editor, testimony, updateTestimony, createTestimony, utils]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, toast]);
 
-  return testimony == null ? createStatus : updateStatus;
+  return updateStatus;
 }

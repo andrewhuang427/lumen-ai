@@ -30,12 +30,10 @@ export default function TestimonyEditorToolbar() {
       <ToggleGroup>
         <Toggle
           onToggle={() => editor.chain().focus().undo().run()}
-          getIsActive={(updatedEditor) => updatedEditor.isActive("undo")}
           Icon={Undo}
         />
         <Toggle
           onToggle={() => editor.chain().focus().redo().run()}
-          getIsActive={(updatedEditor) => updatedEditor.isActive("redo")}
           Icon={Redo}
         />
       </ToggleGroup>
@@ -109,7 +107,7 @@ function ToggleGroup({ children }: { children: React.ReactNode }) {
 
 type FormatToggleProps = {
   onToggle: () => void;
-  getIsActive: (editor: Editor) => boolean;
+  getIsActive?: (editor: Editor) => boolean;
   Icon: LucideIcon;
 };
 
@@ -118,7 +116,7 @@ function Toggle({ onToggle, getIsActive, Icon }: FormatToggleProps) {
   const editorState = useEditorState({
     editor,
     selector: ({ editor }) => ({
-      isActive: editor != null && getIsActive(editor),
+      isActive: editor != null && getIsActive ? getIsActive(editor) : false,
     }),
   });
 
