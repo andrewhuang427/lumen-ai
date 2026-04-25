@@ -33,7 +33,7 @@ export default function AuthContextProvider({
     isPending: isFetchingAuthenticatedUser,
   } = api.user.getOrCreateAuthenticatedUser.useMutation();
 
-  const fetchedAuthUserId = useRef<string | null>(null);
+  const fetchedAuthUserId = useRef<string | null>(defaultUser?.id ?? null);
 
   useEffect(() => {
     async function handleAuthStateChange(session: Session | null) {
@@ -60,17 +60,18 @@ export default function AuthContextProvider({
       fetchedAuthUserId.current = null;
       setUser(null);
       setSession(null);
+      setSessionCookies(null);
       posthog.reset();
     }
 
     const listener = browserSupabase().auth.onAuthStateChange(
       (event, session) => {
-        if (event === "SIGNED_IN") {
-          void handleAuthStateChange(session);
-        }
         if (event === "SIGNED_OUT") {
-          void handleSignedOut();
+          handleSignedOut();
+          return;
         }
+        // INITIAL_SESSION (OAuth return) and TOKEN_REFRESHED, not only SIGNED_IN.
+        void handleAuthStateChange(session);
       },
     );
 

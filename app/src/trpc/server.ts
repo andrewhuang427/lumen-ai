@@ -5,6 +5,7 @@ import { cookies as getCookies, headers as getHeaders } from "next/headers";
 import { cache } from "react";
 import { createCaller, type AppRouter } from "~/server/api/root";
 import { createTRPCContext } from "~/server/context";
+import { serverSupabase } from "~/server/supabase/supabase-server-client";
 import { createQueryClient } from "./query-client";
 
 /**
@@ -19,7 +20,10 @@ const createContext = cache(async () => {
   headers.set("cookie", cookies.toString());
 
   const mappedCookies = new Map(cookies);
-  const accessToken = mappedCookies.get("access-token")?.value;
+  const supabase = await serverSupabase();
+  const { data } = await supabase.auth.getSession();
+  const accessToken =
+    data.session?.access_token ?? mappedCookies.get("access-token")?.value;
   if (accessToken) {
     headers.set("authorization", accessToken);
   }
