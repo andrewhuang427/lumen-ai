@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { type Metadata, type Viewport } from "next";
 import { Suspense } from "react";
 import { TRPCReactProvider } from "~/trpc/react";
+import { OauthPkceHandler } from "../components/auth/oauth-pkce-handler";
 import AuthenticatedProviders from "./authenticated-providers";
 import RootLoadingScreen from "../components/root-loading-screen";
 import PostHogContextProvider from "../components/posthog/posthog-context-provider";
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className="m-0 h-dvh w-full overflow-hidden p-0">
         <PostHogContextProvider>
           <TRPCReactProvider>
+            <OauthPkceHandler />
             <Suspense fallback={<RootLoadingScreen />}>
               <AuthenticatedProviders>{children}</AuthenticatedProviders>
             </Suspense>

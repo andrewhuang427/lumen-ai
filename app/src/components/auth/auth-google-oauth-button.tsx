@@ -7,7 +7,8 @@ export default function GoogleOAuthButton() {
   async function handleGoogleOAuth() {
     await browserSupabase().auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.href}` },
+      // Stable URL for Supabase allow list (avoids long query/fragment in href)
+      options: { redirectTo: `${window.location.origin}/` },
     });
   }
 

@@ -22,12 +22,14 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 
   let supabaseUser: SupabaseUser | null;
   try {
+    const serverClient = await serverSupabase();
     if (authToken) {
-      const serverClient = await serverSupabase();
       const { data } = await serverClient.auth.getUser(authToken);
       supabaseUser = data.user;
     } else {
-      supabaseUser = null;
+      // When the browser is still syncing getSession() but cookies are already set.
+      const { data } = await serverClient.auth.getUser();
+      supabaseUser = data.user;
     }
   } catch {
     supabaseUser = null;
