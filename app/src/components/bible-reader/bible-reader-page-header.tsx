@@ -7,7 +7,7 @@ export function BibleReaderPageHeader() {
   return (
     <Header
       title="Lumen"
-      description="The Bible reading and study app for Christians."
+      description="The Bible reading and study app"
       end={
         <div className="flex items-center gap-2">
           <UserSearchInput />
