@@ -80,7 +80,7 @@ export default function BibleReaderTools() {
                 trigger={
                   <Button
                     variant="default"
-                    className="shrink-0"
+                    className="shrink-0 rounded-full"
                     onClick={() => setIsAuthDialogOpen(true)}
                   >
                     Study chapter <HotKeyText modifier="⌘" hotkey="S" />
