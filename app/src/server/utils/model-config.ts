@@ -1,5 +1,4 @@
 import { UserTier } from "@prisma/client";
-import { type ChatCompletionCreateParams } from "openai/resources/chat/completions.mjs";
 import { z } from "zod";
 import { type Context } from "../context";
 
@@ -18,15 +17,23 @@ export type Model = {
   description: string;
   type: ModelType;
   provider: ModelProvider;
-  model: ChatCompletionCreateParams["model"];
+  model: string;
 };
+
+export const OpenAIModels = {
+  lite: "gpt-5.6-luna",
+  pro: "gpt-5.6-sol",
+  title: "gpt-5.6-luna",
+  webSearch: "gpt-5.6-sol",
+  balancedGeneration: "gpt-5.6-terra",
+} as const;
 
 const LiteModel: Model = {
   name: "Lumen Lite",
   description: "The basic model for free users",
   type: "lite",
   provider: ModelProviders.openai,
-  model: "gpt-3.5-turbo",
+  model: OpenAIModels.lite,
 };
 
 const ProModel: Model = {
@@ -34,7 +41,7 @@ const ProModel: Model = {
   description: "The premium model for understanding the Bible",
   type: "pro",
   provider: ModelProviders.openai,
-  model: "gpt-4o",
+  model: OpenAIModels.pro,
 };
 
 export type TierConfigType = {

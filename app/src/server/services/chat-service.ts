@@ -2,7 +2,11 @@ import { type ChatMessage, type ChatThread } from "@prisma/client";
 import { type ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { type ResponseInputItem } from "openai/resources/responses/responses.mjs";
 import { type Context } from "../context";
-import { getModel, type ModelType } from "../utils/model-config";
+import {
+  getModel,
+  OpenAIModels,
+  type ModelType,
+} from "../utils/model-config";
 import { PermissionsService } from "./permissions-service";
 
 export type ChatThreadWithMessages = ChatThread & { messages: ChatMessage[] };
@@ -125,7 +129,7 @@ async function* createThread(
   });
 
   const titleResponsePromise = ctx.openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: OpenAIModels.title,
     messages: [
       { role: "system", content: CHAT_TITLE_SYSTEM_PROMPT },
       { role: "user", content: initialMessage },
@@ -135,7 +139,7 @@ async function* createThread(
   let assistantMessage = "";
   if (options?.isWebSearchEnabled) {
     const response = await ctx.openai.responses.create({
-      model: "gpt-4o",
+      model: OpenAIModels.webSearch,
       tools: [{ type: "web_search_preview" }],
       input: [
         { role: "system", content: CHAT_WEB_SEARCH_SYSTEM_PROMPT },
@@ -327,7 +331,7 @@ async function* sendMessageWithWebSearch(
   ];
 
   const response = await ctx.openai.responses.create({
-    model: "gpt-4o",
+    model: OpenAIModels.webSearch,
     tools: [{ type: "web_search_preview" }],
     input: messages,
     stream: true,

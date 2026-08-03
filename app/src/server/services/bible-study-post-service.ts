@@ -14,6 +14,7 @@ import {
   getEnrichedSession,
   getSummarizeMessageSystemPrompt,
 } from "../utils/bible-study-utils";
+import { OpenAIModels } from "../utils/model-config";
 
 export const CreatePostInputSchema = z.object({
   title: z.string(),
@@ -71,7 +72,7 @@ async function* summarizeSession(
   };
 
   const completion = await ctx.openai.chat.completions.create({
-    model: "gpt-4o",
+    model: OpenAIModels.balancedGeneration,
     messages: [systemMessage, userMessage],
     stream: true,
   });

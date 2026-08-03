@@ -24,12 +24,12 @@ export default function BibleStudyNoteUnderstandingHoverCard() {
             We are specifically using the{" "}
             <a
               target="_blank"
-              href="https://platform.openai.com/docs/models/gpt-4o"
+              href="https://developers.openai.com/api/docs/guides/latest-model"
               className="text-blue-500 underline"
             >
-              Open AI GPT-4o
+              OpenAI GPT-5.6
             </a>{" "}
-            model to generate responses.
+            model family to generate responses.
           </p>
           <p className="text-muted-foreground">
             The AI has been given the following instructions:

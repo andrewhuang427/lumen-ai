@@ -1,4 +1,5 @@
 import type OpenAI from "openai";
+import { OpenAIModels } from "../utils/model-config";
 
 const systemPrompt = `
 **Context**
@@ -48,7 +49,7 @@ export async function parsePassage(
   passage: string,
 ): Promise<{ json: JSONParagraphsResponse; raw: string }> {
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: OpenAIModels.balancedGeneration,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: passage },
